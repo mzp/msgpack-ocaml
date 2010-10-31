@@ -1,0 +1,3 @@
+#!/bin/sh
+Base=$(dirname $0)
+cp -v ${Base}/hooks/* $(git rev-parse --show-toplevel)/.git/hooks
