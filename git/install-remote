@@ -1,0 +1,3 @@
+#!/bin/sh
+git remote rm private
+git remote add --track master private ssh://eva-lu-ator.net/home/mzp/git/msgpack-ocaml.git
