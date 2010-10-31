@@ -1,3 +1,5 @@
 #!/bin/sh
 git remote rm private
-git remote add --track master private ssh://eva-lu-ator.net/home/mzp/git/msgpack-ocaml.git
+git remote rm hudson
+git remote add private ssh://eva-lu-ator.net/home/mzp/git/msgpack-ocaml.git
+git remote add hudson  ssh://eva-lu-ator.net/var/git/msgpack-ocaml.git
