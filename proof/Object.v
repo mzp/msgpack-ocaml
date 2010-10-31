@@ -1,0 +1,1 @@
+Inductive object A :=.

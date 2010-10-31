@@ -1,0 +1,11 @@
+open CoqBuildRule
+.PHONY: all clean
+
+FILES[] =
+	Object
+
+.DEFAULT:
+proof: $(CoqProof $(FILES))
+
+clean:
+	rm -rf *.vo *.glob *~ *.omc .omakedb .omakedb.lock

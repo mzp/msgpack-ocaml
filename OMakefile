@@ -1,0 +1,5 @@
+.PHONY: clean
+.SUBDIRS: proof
+
+clean:
+	rm -rf *.vo *.glob *~ *.omc .omakedb .omakedb.lock
