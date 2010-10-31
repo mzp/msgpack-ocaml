@@ -1,10 +1,10 @@
 open CoqBuildRule
-.PHONY: all clean
+.PHONY: all clean proof
 
 FILES[] =
 	Object
 
-.DEFAULT:
+.DEFAULT: proof
 proof: $(CoqProof $(FILES))
 
 clean:
