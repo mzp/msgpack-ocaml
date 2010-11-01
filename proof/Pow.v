@@ -1,0 +1,79 @@
+(**
+   算術演算関連の補題
+*)
+
+Require Import Omega NArith Euclid.
+
+(** ** 算術演算 *)
+Lemma mult_S_lt_reg_l :
+  forall n m p, 0 < n -> n * m < n * p -> m < p.
+Proof.
+intros.
+destruct n.
+ inversion H.
+
+elim (le_or_lt m p).
+ intro.
+ inversion H1.
+  rewrite H2 in H0.
+   elim (lt_irrefl _ H0).
+   omega.
+
+   intro.
+   apply (mult_S_lt_compat_l n _ _) in H1.
+   omega.
+Qed.
+
+Lemma plus_elim: forall p a b,
+  a + p < b -> a < b.
+Proof.
+intros.
+omega.
+Qed.
+
+(** ** pow *)
+Fixpoint pow (n : nat) :=
+  match n with
+    | 0 =>
+      1
+    | S n' =>
+      2 * pow n'
+  end.
+
+Lemma pow_lt_O : forall n,
+  0 < pow n.
+Proof.
+induction n; simpl; omega.
+Qed.
+
+Lemma pow_add: forall n m,
+  pow n * pow m = pow (n + m).
+Proof.
+induction n; intros.
+ simpl in *.
+ omega.
+
+ simpl.
+ repeat rewrite plus_0_r.
+ rewrite <- IHn, mult_plus_distr_r.
+ reflexivity.
+Qed.
+
+(** ** divmod *)
+Definition divmod (n m : nat) (P : 0 < m) :=
+  eucl_dev m P n.
+
+Lemma divmod_lt_q : forall (n m q r s t: nat),
+  n < pow (s + t) ->
+  n = q * pow s + r ->
+  q < pow t.
+Proof.
+intros.
+rewrite H0 in H.
+apply plus_elim in H.
+rewrite <- pow_add, mult_comm in H.
+apply mult_S_lt_reg_l in H.
+ assumption.
+
+ apply pow_lt_O.
+Qed.

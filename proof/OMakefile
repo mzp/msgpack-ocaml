@@ -2,6 +2,8 @@ open CoqBuildRule
 .PHONY: all clean proof
 
 FILES[] =
+	Pow
+	MultiByte
 	Object
 
 .DEFAULT: proof
