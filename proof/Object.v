@@ -1,5 +1,5 @@
 Require Import List Ascii.
-Require Import Pow MultiByte.
+Require Import Pow MultiByte ListUtil.
 
 Open Scope char_scope.
 
@@ -18,16 +18,6 @@ Inductive Valid : object -> Prop :=
   List.length (x::xs) < pow 16 ->
   Valid (Array16 (x::xs)).
 
-
-Lemma length_lt_O: forall A (x : A) xs,
-  length (x::xs) > 0.
-Proof.
-intros.
-simpl.
-omega.
-Qed.
-Hint Resolve length_lt_O.
-
 Lemma varray16_inv1: forall x xs,
   Valid (Array16 (x::xs)) ->
   ("000", "000") <> ascii16_of_nat (length (x :: xs)).
@@ -35,15 +25,6 @@ Proof.
 intros.
 apply ascii16_not_O.
 split; [ apply length_lt_O | inversion H; auto ].
-Qed.
-
-Lemma length_inv: forall A (x y : A) xs ys,
-  length (x :: xs) = length (y :: ys) ->
-  length xs = length ys.
-Proof.
-intros.
-inversion H.
-auto.
 Qed.
 
 Lemma varray16_inv2 : forall A (x y : A) xs ys,

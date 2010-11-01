@@ -4,7 +4,9 @@ open CoqBuildRule
 FILES[] =
 	Pow
 	MultiByte
+	ListUtil
 	Object
+	SerializeSpec
 
 .DEFAULT: proof
 proof: $(CoqProof $(FILES))

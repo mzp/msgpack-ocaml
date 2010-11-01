@@ -1,8 +1,5 @@
 Require Import List Ascii.
-Require Import MultiByte Object.
-
-Local Notation "[ ]" := nil : list_scope.
-Local Notation "[ a ; .. ; b ]" := (a :: .. (b :: []) ..) : list_scope.
+Require Import MultiByte Object ListUtil.
 
 Open Scope list_scope.
 Open Scope char_scope.
