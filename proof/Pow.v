@@ -77,3 +77,22 @@ apply mult_S_lt_reg_l in H.
 
  apply pow_lt_O.
 Qed.
+
+Lemma divmod_not_O: forall n m q r,
+  0 < n ->
+  0 < m ->
+  n = q * m + r ->
+  0 < q \/ 0 < r.
+Proof.
+intros.
+rewrite H1 in H.
+destruct q.
+ simpl in H.
+ right.
+ assumption.
+
+ left.
+ omega.
+Qed.
+
+Hint Resolve pow_lt_O.

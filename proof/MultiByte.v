@@ -4,6 +4,8 @@
 Require Import List Ascii NArith Omega Euclid.
 Require Import Pow.
 
+Open Scope char_scope.
+
 (* * 型の定義 *)
 Definition ascii8  : Set := ascii.
 Definition ascii16 : Set := (ascii8  * ascii8)%type.
@@ -152,4 +154,60 @@ destruct a; destruct a3; destruct a0; destruct a4;
 destruct a1; destruct a5; destruct a2; destruct a6.
 inversion H.
 reflexivity.
+Qed.
+
+(** 0でないことの証明 *)
+Lemma ascii8_not_O: forall n,
+  0 < n < pow 8 ->
+  "000" <> ascii8_of_nat n.
+Proof.
+intros.
+destruct H.
+apply nat_ascii8_embedding in H0.
+destruct (ascii8_of_nat n).
+intro.
+destruct b; destruct b0; destruct b1; destruct b2; destruct b3; destruct b4; destruct b5; destruct b6; inversion H1.
+compute in H0.
+rewrite <- H0 in H.
+inversion H.
+Qed.
+
+Lemma ascii16_not_O: forall n,
+  0 < n < pow 16 ->
+  ("000","000") <> ascii16_of_nat n.
+Proof.
+intros.
+unfold ascii16_of_nat.
+destruct divmod.
+destruct H.
+intro.
+inversion H1.
+generalize e; intro.
+apply divmod_not_O in e; auto.
+decompose [or] e.
+ apply ascii8_not_O in H3; auto.
+ apply divmod_lt_q with (t:=8) in e0; auto.
+
+ apply ascii8_not_O in H4; auto.
+Qed.
+
+(* ** 2^n未満なら等価性が変らないことの証明 *)
+Lemma ascii8_of_nat_eq : forall n m,
+  n < pow 8 ->
+  m < pow 8 ->
+  ascii8_of_nat n = ascii8_of_nat m ->
+  n = m.
+Proof.
+intros.
+rewrite <- (nat_ascii8_embedding n), <- (nat_ascii8_embedding m), <- H1; auto.
+Qed.
+
+Lemma ascii16_of_nat_eq : forall n m,
+  n < pow 16 ->
+  m < pow 16 ->
+  ascii16_of_nat n = ascii16_of_nat m ->
+  n = m.
+Proof.
+intros.
+rewrite <- (nat_ascii16_embedding n), <- (nat_ascii16_embedding m), <- H1; auto.
 Qed.
