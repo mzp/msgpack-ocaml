@@ -7,6 +7,8 @@ FILES[] =
 	ListUtil
 	Object
 	SerializeSpec
+	Prefix
+	Soundness
 
 .DEFAULT: proof
 proof: $(CoqProof $(FILES))
