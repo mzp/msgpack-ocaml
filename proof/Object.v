@@ -10,6 +10,8 @@ Inductive object :=
 
 (** * 妥当なオブジェクトの定義 *)
 Inductive Valid : object -> Prop :=
+| VBool : forall b,
+  Valid (Bool b)
 | VArray16Nil  :
   Valid (Array16 nil)
 | VArray16Cons : forall x xs,
