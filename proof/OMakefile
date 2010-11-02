@@ -9,6 +9,7 @@ FILES[] =
 	SerializeSpec
 	Prefix
 	Soundness
+	Implement
 
 .DEFAULT: proof
 proof: $(CoqProof $(FILES))
