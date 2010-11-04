@@ -1,5 +1,5 @@
 Require Import Ascii List.
-Require Import ListUtil Object MultiByte Util.
+Require Import ListUtil Object MultiByte Util SerializeSpec.
 
 Open Scope char_scope.
 
@@ -50,3 +50,25 @@ Fixpoint deserialize (xs : list ascii8) :=
     | _ =>
       []
   end.
+
+Theorem serialize_correct : forall obj xs,
+  Serialized obj xs ->
+  serialize obj = xs.
+Proof.
+intros.
+generalize H.
+pattern obj,xs.
+apply Serialized_ind; auto; intros; simpl.
+ rewrite <- ascii16_of_nat_O.
+ reflexivity.
+
+ simpl in H1.
+ rewrite <- H1.
+ apply H3 in H2.
+ rewrite H2.
+ apply H5 in H4.
+ simpl in H4.
+ rewrite <- H0 in *.
+ inversion H4.
+ reflexivity.
+Qed.

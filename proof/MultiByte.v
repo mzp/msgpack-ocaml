@@ -211,3 +211,22 @@ Proof.
 intros.
 rewrite <- (nat_ascii16_embedding n), <- (nat_ascii16_embedding m), <- H1; auto.
 Qed.
+
+Lemma ascii8_of_nat_O:
+  "000" = ascii8_of_nat 0.
+Proof.
+compute.
+reflexivity.
+Qed.
+
+Lemma ascii16_of_nat_O:
+  ("000", "000") = ascii16_of_nat 0.
+Proof.
+unfold ascii16_of_nat.
+destruct divmod.
+apply divmod_O_pow in e.
+decompose [and] e.
+rewrite H, H0.
+rewrite <- ascii8_of_nat_O.
+reflexivity.
+Qed.

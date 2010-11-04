@@ -46,6 +46,8 @@ Proof.
 induction n; simpl; omega.
 Qed.
 
+Hint Resolve pow_lt_O.
+
 Lemma pow_add: forall n m,
   pow n * pow m = pow (n + m).
 Proof.
@@ -95,4 +97,27 @@ destruct q.
  omega.
 Qed.
 
-Hint Resolve pow_lt_O.
+Lemma divmod_O: forall n q r,
+  0 = q * n + r ->
+  n <> 0 ->
+  q = 0 /\ r = 0.
+Proof.
+intros.
+destruct q; destruct n; destruct r; try omega.
+ simpl in H.
+ discriminate.
+
+ simpl in H.
+ discriminate.
+Qed.
+
+Lemma divmod_O_pow: forall n q r,
+  0 = q * pow n + r ->
+  q = 0 /\ r = 0.
+Proof.
+intros.
+apply (divmod_O (pow n) _ _); auto.
+intro.
+generalize (pow_lt_O n); intros.
+omega.
+Qed.
