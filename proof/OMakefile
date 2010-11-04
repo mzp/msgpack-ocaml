@@ -10,6 +10,9 @@ FILES[] =
 	Prefix
 	Soundness
 	Implement
+	OCamlBase
+	Util
+	ExtractUtil
 
 .DEFAULT: proof
 proof: $(CoqProof $(FILES))
