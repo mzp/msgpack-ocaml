@@ -33,11 +33,13 @@ Fixpoint drop {A} n (xs : list A) :=
       drop m xs
   end.
 
-Definition split_at {A} n (xs : list A) :=
+Definition split_at {A} (n : nat) (xs : list A) : list A * list A :=
   (take n xs, drop n xs).
 
 Fixpoint deserialize (xs : list ascii8) :=
   match xs with
+    | "194"::ys =>
+      (Bool false)::deserialize ys
     | "195"::ys =>
       (Bool true)::deserialize ys
     | "221"::s1::s2::ys =>
@@ -72,3 +74,14 @@ apply Serialized_ind; auto; intros; simpl.
  inversion H4.
  reflexivity.
 Qed.
+
+Lemma deserialize_prefix : forall x y xs,
+  Serialized y  x ->
+  deserialize x = [ y ] ->
+  deserialize (x ++ xs) = y :: deserialize xs.
+Proof.
+intros until y.
+pattern y, x.
+apply Serialized_ind; auto; intros.
+ simpl.
+
