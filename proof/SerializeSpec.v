@@ -17,3 +17,15 @@ Inductive Serialized : object -> list ascii8 -> Prop :=
   Serialized x y ->
   Serialized (Array16 xs) ("221"::t1::t2::ys) ->
   Serialized (Array16 (x::xs)) ("221"::s1::s2::y ++ ys).
+
+Inductive SerializedList : list object -> list ascii8 -> Prop :=
+| SSingle : forall x ys,
+  Serialized x ys ->
+  SerializedList [ x ] ys
+| SCons : forall x xs ys zs,
+  Serialized x ys ->
+  SerializedList xs zs ->
+  SerializedList (x::xs) (ys ++ zs).
+
+
+
