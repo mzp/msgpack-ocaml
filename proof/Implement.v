@@ -17,25 +17,6 @@ Fixpoint serialize (obj : object) : list ascii8 :=
         "221"::s1::s2::ys
   end.
 
-Fixpoint take {A} n (xs : list A) :=
-  match n, xs with
-    | O , _ => []
-    | _ , [] => []
-    | S m, x::xs =>
-      x::take m xs
-  end.
-
-Fixpoint drop {A} n (xs : list A) :=
-  match n, xs with
-    | O , _ => xs
-    | _ , [] => []
-    | S m, x::xs =>
-      drop m xs
-  end.
-
-Definition split_at {A} (n : nat) (xs : list A) : list A * list A :=
-  (take n xs, drop n xs).
-
 Fixpoint deserialize (xs : list ascii8) :=
   match xs with
     | "195"::ys =>
@@ -75,61 +56,6 @@ apply Serialized_ind; auto; intros; simpl.
  reflexivity.
 Qed.
 
-Lemma take_length : forall A ( xs : list A) n,
-  n = List.length xs ->
-  take n xs = xs.
-Proof.
-induction xs; intros; simpl in *.
- rewrite H.
- reflexivity.
-
- rewrite H.
- simpl.
- rewrite IHxs; auto.
-Qed.
-
-Lemma drop_length : forall A ( xs : list A) n,
-  n = List.length xs ->
-  drop n xs = [].
-Proof.
-induction xs; intros; simpl in *.
- rewrite H.
- reflexivity.
-
- rewrite H.
- simpl.
- rewrite IHxs; auto.
-Qed.
-
-Lemma take_nil : forall A n,
-  take n ([] : list A) = [].
-Proof.
-induction n; auto.
-Qed.
-
-Lemma take_drop_length : forall A ( xs ys : list A) n,
-  take n xs = ys ->
-  drop n xs = [ ] ->
-  xs  = ys.
-Proof.
-induction xs; intros; simpl in *.
- rewrite take_nil in H.
- assumption.
-
- destruct n.
-  simpl in H0.
-  discriminate.
-
-  simpl in *.
-  destruct ys.
-   discriminate.
-
-   inversion H.
-   rewrite H3.
-   apply IHxs in H3; auto.
-   rewrite H3.
-   reflexivity.
-Qed.
 
 Lemma prefix_deserialize : forall x xs y ys,
   Serialized x y ->
