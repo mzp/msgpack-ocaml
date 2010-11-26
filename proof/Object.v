@@ -1,24 +1,95 @@
+(* -*- coding:utf-8 -*- *)
 Require Import List Ascii.
 Require Import Pow MultiByte ListUtil.
 
 Open Scope char_scope.
 
-(* ** MsgPackで使うオブジェクトの定義 *)
+(** MsgPackで使うオブジェクトの定義 *)
 Inductive object :=
 | Bool (_ : bool)
-| Array16  ( _ : list object).
+| Nil
+| PFixnum (_ : ascii8)
+| NFixnum (_ : ascii8)
+| Uint8  (_ : ascii8)
+| Uint16 (_ : ascii16)
+| Uint32 (_ : ascii32)
+| Uint64 (_ : ascii64)
+| Int8   (_ : ascii8)
+| Int16  (_ : ascii16)
+| Int32  (_ : ascii32)
+| Int64  (_ : ascii64)
+| Float  (_ : ascii32)
+| Double (_ : ascii64)
+| FixRaw (_ : list ascii8)
+| Raw16  (_ : list ascii8)
+| Raw32  (_ : list ascii8)
+| FixArray ( _ : list object)
+| Array16  ( _ : list object)
+| Array32  ( _ : list object)
+| FixMap   ( _ : list (object * object)%type)
+| Map16    ( _ : list (object * object)%type)
+| Map32    ( _ : list (object * object)%type).
 
-(** * 妥当なオブジェクトの定義 *)
+(** 妥当なオブジェクトの定義 *)
 Inductive Valid : object -> Prop :=
 | VBool : forall b,
   Valid (Bool b)
-| VArray16Nil  :
-  Valid (Array16 nil)
-| VArray16Cons : forall x xs,
+| VPFixNum : forall n,
+  nat_of_ascii8 n < 128 -> Valid (PFixnum n)
+| VNFixNum : forall n,
+  (* 負の数を導入したくないので、補数表現を使う *)
+  223 < nat_of_ascii8 n /\ nat_of_ascii8 n < 256 -> Valid (NFixnum n)
+| VFixRaw : forall xs,
+  length xs < pow 5 -> Valid (FixRaw xs)
+| VRaw16 : forall xs,
+  length xs < pow 16 -> Valid (Raw16 xs)
+| VRaw32 : forall xs,
+  length xs < pow 32 -> Valid (Raw32 xs)
+| VFixArrayNil :
+  Valid (FixArray [])
+| VFixArrayCons : forall x xs,
+  Valid x ->
+  Valid (FixArray xs) ->
+  length (x::xs) < pow 4 ->
+  Valid (FixArray (x::xs))
+| VArray16Nil :
+  Valid (Array16 [])
+| VArray16Cons: forall x xs,
   Valid x ->
   Valid (Array16 xs) ->
-  List.length (x::xs) < pow 16 ->
-  Valid (Array16 (x::xs)).
+  length (x::xs) < pow 16 ->
+  Valid (Array16 (x::xs))
+| VArray32Nil :
+  Valid (Array32 [])
+| VArray32Cons : forall x xs,
+  Valid x ->
+  Valid (Array32 xs) ->
+  length (x::xs) < pow 32 ->
+  Valid (Array32 (x::xs))
+| VFixMapNil:
+  Valid (FixMap [])
+| VFixMapCons : forall k v xs,
+  Valid k ->
+  Valid v ->
+  Valid (FixMap xs)  ->
+  length ((k,v)::xs) < pow 4 ->
+  Valid (FixMap ((k,v)::xs))
+| VMap16Nil :
+  Valid (Map16 [])
+| VMap16Cons : forall k v xs,
+  Valid k ->
+  Valid v ->
+  Valid (Map16 xs)  ->
+  length ((k,v)::xs) < pow 16 ->
+  Valid (Map16 ((k,v)::xs))
+| VMap32Nil :
+  Valid (Map32 [])
+| VMap32Cons : forall k v xs,
+  Valid k ->
+  Valid v ->
+  Valid (Map32 xs)  ->
+  length ((k,v)::xs) < pow 32 ->
+  Valid (Map32 ((k,v)::xs)).
 
 Lemma varray16_inv1: forall x xs,
   Valid (Array16 (x::xs)) ->
