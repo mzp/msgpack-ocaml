@@ -78,12 +78,32 @@ induction xs; intros; simpl in *.
  rewrite IHxs; auto.
 Qed.
 
-Lemma split_length : forall A (xs ys : list A),
+Lemma split_at_length : forall A (xs ys : list A),
   (xs, ys) = split_at (length xs) (xs ++ ys).
 Proof.
 intros.
 unfold split_at.
 rewrite take_length, drop_length; auto.
+Qed.
+
+Lemma split_at_soundness : forall A (xs ys zs : list A) n,
+  (ys,zs) = split_at n xs ->
+  xs = ys ++ zs.
+Proof.
+induction xs; induction n; intros; simpl;
+  try (inversion H; reflexivity).
+
+  unfold split_at in *.
+  simpl in H.
+  destruct ys.
+   inversion H.
+
+   rewrite (IHxs ys zs n); auto.
+    inversion H.
+    reflexivity.
+
+    inversion H.
+    reflexivity.
 Qed.
 
 Lemma take_nil : forall A n,
