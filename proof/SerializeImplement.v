@@ -15,6 +15,7 @@ Fixpoint serialize (obj : object) : list ascii8 :=
         ascii16_of_nat (length  xs)
       in
         "221"::s1::s2::ys
+    | _ => []
   end.
 
 Theorem serialize_correct : forall obj xs,
