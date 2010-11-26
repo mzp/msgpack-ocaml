@@ -52,9 +52,9 @@ Fixpoint drop {A} n (xs : list A) :=
 Definition split_at {A} (n : nat) (xs : list A) : list A * list A :=
   (take n xs, drop n xs).
 
-Lemma take_length : forall A ( xs : list A) n,
+Lemma take_length : forall A ( xs ys : list A) n,
   n = List.length xs ->
-  take n xs = xs.
+  take n (xs ++ ys) = xs.
 Proof.
 induction xs; intros; simpl in *.
  rewrite H.
@@ -65,9 +65,9 @@ induction xs; intros; simpl in *.
  rewrite IHxs; auto.
 Qed.
 
-Lemma drop_length : forall A ( xs : list A) n,
+Lemma drop_length : forall A ( xs ys : list A) n,
   n = List.length xs ->
-  drop n xs = [].
+  drop n (xs ++ ys) = ys.
 Proof.
 induction xs; intros; simpl in *.
  rewrite H.
@@ -76,6 +76,14 @@ induction xs; intros; simpl in *.
  rewrite H.
  simpl.
  rewrite IHxs; auto.
+Qed.
+
+Lemma split_length : forall A (xs ys : list A),
+  (xs, ys) = split_at (length xs) (xs ++ ys).
+Proof.
+intros.
+unfold split_at.
+rewrite take_length, drop_length; auto.
 Qed.
 
 Lemma take_nil : forall A n,
@@ -83,6 +91,7 @@ Lemma take_nil : forall A n,
 Proof.
 induction n; auto.
 Qed.
+
 
 Lemma take_drop_length : forall A ( xs ys : list A) n,
   take n xs = ys ->
