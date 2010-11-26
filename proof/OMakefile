@@ -10,6 +10,7 @@ FILES[] =
 	Prefix
 	Soundness
 	SerializeImplement
+	DeserializeImplement
 	OCamlBase
 	Util
 	ExtractUtil
