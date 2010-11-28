@@ -230,3 +230,36 @@ rewrite H, H0.
 rewrite <- ascii8_of_nat_O.
 reflexivity.
 Qed.
+
+(* lengthが等しいことの証明 *)
+Lemma ascii8_length : forall c1 c2,
+  length (list_of_ascii8 c1) = length (list_of_ascii8 c2).
+Proof.
+auto.
+Qed.
+
+Lemma ascii16_length : forall c1 c2,
+  length (list_of_ascii16 c1) = length (list_of_ascii16 c2).
+Proof.
+destruct c1,c2.
+auto.
+Qed.
+
+Lemma ascii32_length : forall c1 c2,
+  length (list_of_ascii32 c1) = length (list_of_ascii32 c2).
+Proof.
+destruct c1 as [a1 a2] ,c2 as [a3 a4].
+destruct a1,a2,a3,a4.
+auto.
+Qed.
+
+Lemma ascii64_length : forall c1 c2,
+  length (list_of_ascii64 c1) = length (list_of_ascii64 c2).
+Proof.
+destruct c1 as [a1 a2] ,c2 as [a3 a4].
+destruct a1 as [b1 b2], a2 as [b3 b4], a3 as [b5 b6], a4 as [b7 b8].
+destruct b1,b2,b3,b4,b5,b6,b7,b8.
+auto.
+Qed.
+
+Hint Resolve ascii16_length ascii32_length ascii64_length : ascii.

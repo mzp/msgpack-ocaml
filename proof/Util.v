@@ -37,4 +37,3 @@ Infix "@@" := atat (right associativity, at level 75).
 
 Definition doll {A B C:Type} (g:B->C) (f:A->B) (x:A) := g (f x).
 Infix "$" := doll (at level 75).
-
