@@ -144,6 +144,57 @@ Proof.
 same_as_uint8.
 Qed.
 
+Require Import Pow.
+
+Lemma app_length_eq : forall A (xs ys zs ws : list A),
+  xs ++zs = ys ++ ws ->
+  length xs = length ys ->
+  xs = ys.
+Proof.
+Admitted.
+
+Lemma ascii5 : forall n b1 b2 b3 b4 b5 b6 b7 b8,
+  n < pow 5 ->
+  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat n ->
+  b6 = false /\ b7 = false /\ b8 = false.
+Proof.
+Admitted.
+
+Lemma pow_lt : forall n m,
+  n < m ->
+  pow n < pow m.
+Proof.
+Admitted.
+
+Hint Resolve pow_lt : ascii.
+
+Lemma prefix_fixraw : forall cs b1 b2 b3 b4 b5 b6 b7 b8,
+  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length cs) ->
+  Prefix (FixRaw cs) ((Ascii b1 b2 b3 b4 b5 true false true)::cs).
+Proof.
+unfold Prefix.
+intros.
+destruct_serialize obj2 y.
+rewrite_for obj2.
+rewrite_for y.
+inversion H2.
+inversion H3.
+assert (cs = cs0); [| rewrite_for cs; auto ].
+apply (app_length_eq _ _ _ xs ys); auto.
+rewrite <- (nat_ascii8_embedding (length cs)),
+        <- (nat_ascii8_embedding (length cs0)).
+ rewrite <- H, <- H8.
+ apply ascii5 in H; auto.
+ decompose [and] H.
+ apply ascii5 in H8; auto.
+ decompose [and] H8.
+ rewrite H16,H17,H18,H19,H21,H22.
+ reflexivity.
+
+ transitivity (pow 5); auto with ascii.
+
+ transitivity (pow 5); auto with ascii.
+Qed.
 (*Lemma prefix_array16_nil:
   Serialized (Array16 []) ["220"; "000"; "000"] ->
   Prefix (Array16 []) ["220"; "000"; "000"].
