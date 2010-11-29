@@ -62,7 +62,7 @@ Inductive Serialized : object -> list ascii8 -> Prop :=
   Serialized (Array16 xs) ("220"::t1::t2::ys) ->
   Serialized (Array16 (x::xs)) ("220"::s1::s2::y ++ ys)
 | SArray32Nil :
-  Serialized (Array16 []) ["221"; "000"; "000";"000"; "000"]
+  Serialized (Array32 []) ["221"; "000"; "000";"000"; "000"]
 | SArray32Cons : forall x xs y ys s1 s2 s3 s4 t1 t2 t3 t4,
   ((t1,t2),(t3,t4)) = ascii32_of_nat (length xs) ->
   ((s1,s2),(s3,s4)) = ascii32_of_nat (length (x::xs)) ->

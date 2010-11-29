@@ -121,3 +121,42 @@ intro.
 generalize (pow_lt_O n); intros.
 omega.
 Qed.
+
+Lemma plus_O : forall n,
+  n + 0 = n.
+Proof.
+Admitted.
+
+Lemma plus_double : forall n,
+  n < n + n.
+Admitted.
+
+Lemma pow_lt : forall n m,
+  n < m ->
+  pow n < pow m.
+Proof.
+induction n; induction m; simpl; intros.
+ inversion H.
+
+ destruct m; auto.
+ transitivity (pow (S m));
+   [ apply IHm | idtac];
+  omega.
+
+ inversion H.
+
+ simpl in IHm.
+ inversion H; simpl.
+  repeat (rewrite plus_O in *).
+  apply (Plus.plus_lt_compat_r O _).
+  transitivity (pow n); auto.
+  apply plus_double.
+
+  assert (S n < m); auto.
+  apply IHm in H2.
+  transitivity (pow m); auto.
+  rewrite plus_O.
+  apply plus_double.
+Qed.
+
+Hint Resolve pow_lt pow_lt_O: pow.

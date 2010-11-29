@@ -183,12 +183,45 @@ destruct H.
 intro.
 inversion H1.
 generalize e; intro.
-apply divmod_not_O in e; auto.
+apply divmod_not_O in e; auto with pow.
 decompose [or] e.
  apply ascii8_not_O in H3; auto.
- apply divmod_lt_q with (t:=8) in e0; auto.
+ apply divmod_lt_q with (t:=8) in e0; auto with pow.
 
- apply ascii8_not_O in H4; auto.
+ apply ascii8_not_O in H4; auto with pow.
+Qed.
+
+Lemma ascii32_not_O: forall n,
+  0 < n < pow 32 ->
+  ("000","000",("000","000")) <> ascii32_of_nat n.
+Proof.
+intros.
+unfold ascii32_of_nat.
+destruct divmod.
+destruct H.
+intro.
+inversion H1.
+generalize e; intro.
+apply divmod_not_O in e.
+ decompose [or] e.
+ apply divmod_lt_q with (t:=16) in e0.
+  apply ascii16_not_O in H3.
+   contradiction.
+
+   split; assumption.
+
+   assumption.
+
+   exact H0.
+
+ apply ascii16_not_O in H4.
+  contradiction.
+
+   split; assumption.
+
+   assumption.
+
+ apply pow_lt_O.
 Qed.
 
 (* ** 2^n未満なら等価性が変らないことの証明 *)
@@ -260,6 +293,18 @@ destruct c1 as [a1 a2] ,c2 as [a3 a4].
 destruct a1 as [b1 b2], a2 as [b3 b4], a3 as [b5 b6], a4 as [b7 b8].
 destruct b1,b2,b3,b4,b5,b6,b7,b8.
 auto.
+Qed.
+
+Lemma ascii5 : forall n b1 b2 b3 b4 b5 b6 b7 b8,
+  n < pow 5 ->
+  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat n ->
+  b6 = false /\ b7 = false /\ b8 = false.
+Proof.
+intros.
+simpl in H.
+do 32 (destruct n; [ inversion H0; auto | idtac]).
+do 32 (apply Lt.lt_S_n in H).
+inversion H.
 Qed.
 
 Hint Resolve ascii16_length ascii32_length ascii64_length : ascii.
