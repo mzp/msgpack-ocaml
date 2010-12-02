@@ -356,20 +356,20 @@ destruct_serialize obj2 y0.
  rewrite_for y1.
  apply app_same in H18.
  apply (H4 (Array16 xs1)  ("220" :: t0 :: t3 :: ys1) xs0 ys0) in H3; auto.
- inversion H3.
- reflexivity.
- change (("220" :: t1 :: t2 :: ys) ++ xs0) with ("220" :: t1 :: t2 :: (ys ++ xs0)).
- change (("220" :: t0 :: t3 :: ys1) ++ ys0) with ("220" :: t0 :: t3 :: (ys1 ++ ys0)).
- unfold ascii8 in *.
- rewrite <- H18.
- rewrite H0 in H13.
- apply ascii16_of_nat_eq in H13; auto.
- simpl in H13.
- inversion H13.
- rewrite <- H26 in H11.
- rewrite <- H11 in H.
- inversion H.
- reflexivity.
+  inversion H3.
+  reflexivity.
+
+  simpl.
+  unfold ascii8 in *.
+  rewrite <- H18.
+  rewrite H0 in H13.
+  apply ascii16_of_nat_eq in H13; auto.
+  simpl in H13.
+  inversion H13.
+  rewrite <- H26 in H11.
+  rewrite <- H11 in H.
+  inversion H.
+  reflexivity.
 Qed.
 
 Lemma prefix_array32_cons: forall x xs y ys s1 s2 s3 s4 t1 t2 t3 t4,
@@ -381,7 +381,45 @@ Lemma prefix_array32_cons: forall x xs y ys s1 s2 s3 s4 t1 t2 t3 t4,
   Prefix (Array32 xs) ("221" :: t1 :: t2 :: t3 :: t4 :: ys) ->
   Prefix (Array32 (x :: xs)) ("221" :: s1 :: s2 :: s3 :: s4 :: y ++ ys).
 Proof.
-Admitted.
+unfold Prefix.
+intros.
+destruct_serialize obj2 y0;
+ rewrite_for y0; rewrite_for obj2; inversion H9.
+ rewrite_for s1.
+ rewrite_for s2.
+ rewrite_for s3.
+ rewrite_for s4.
+ apply ascii32_not_O in H0; [ contradiction |].
+ inversion H7.
+ split; [ simpl; omega | exact H15 ].
+
+ rewrite_for s0.
+ rewrite_for s5.
+ rewrite_for s6.
+ rewrite_for s7.
+ assert( y++ ys = y1 ++ ys1); [| rewrite_for (y++ys); reflexivity ].
+ rewrite <- (app_assoc y ys xs0), <- (app_assoc y1 ys1 ys0) in H20.
+ inversion H7.
+ inversion H8.
+ apply (H2 x0 y1 (ys++xs0) (ys1++ys0)) in H1; auto.
+ rewrite_for y1.
+ apply app_same in H20.
+ apply (H4 (Array32 xs1)  ("221" :: t0 :: t5 :: t6 :: t7 :: ys1) xs0 ys0) in H3; auto.
+  inversion H3.
+  reflexivity.
+
+  simpl.
+  unfold ascii8 in *.
+  rewrite <- H20.
+  rewrite H0 in H13.
+  apply ascii32_of_nat_eq in H13; auto.
+  simpl in H13.
+  inversion H13.
+  rewrite <- H26 in H11.
+  rewrite <- H11 in H.
+  inversion H.
+  reflexivity.
+Qed.
 
 Lemma prefix_fixmap_cons: forall x1 x2 xs y1 y2 tag ys b1 b2 b3 b4 b5 b6 b7 b8,
   Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length ((x1, x2) :: xs)) ->
@@ -406,7 +444,6 @@ Lemma prefix_map16_cons: forall x1 x2 xs y1 y2 ys s1 s2 t1 t2,
   Serialized (Map16 xs) ("222" :: t1 :: t2 :: ys) ->
   Prefix (Map16 xs) ("222" :: t1 :: t2 :: ys) ->
   Prefix (Map16 ((x1, x2) :: xs)) ("222" :: s1 :: s2 :: y1 ++ y2 ++ ys).
-Proof.
 Admitted.
 
 Lemma prefix_map32_cons : forall x1 x2 xs y1 y2 ys s1 s2 s3 s4 t1 t2 t3 t4,

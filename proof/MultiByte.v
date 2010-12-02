@@ -245,6 +245,16 @@ intros.
 rewrite <- (nat_ascii16_embedding n), <- (nat_ascii16_embedding m), <- H1; auto.
 Qed.
 
+Lemma ascii32_of_nat_eq : forall n m,
+  n < pow 32 ->
+  m < pow 32 ->
+  ascii32_of_nat n = ascii32_of_nat m ->
+  n = m.
+Proof.
+intros.
+rewrite <- (nat_ascii32_embedding n), <- (nat_ascii32_embedding m), <- H1; auto.
+Qed.
+
 Lemma ascii8_of_nat_O:
   "000" = ascii8_of_nat 0.
 Proof.
