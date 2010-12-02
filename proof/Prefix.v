@@ -312,6 +312,17 @@ split.
  exact H21.
 Qed.
 
+Lemma prefix_fixarray_cons: forall x xs y tag ys b1 b2 b3 b4 b5 b6 b7 b8,
+  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length (x :: xs)) ->
+  Serialized x y ->
+  Prefix x y ->
+  Serialized (FixArray xs) (tag :: ys) ->
+  Prefix (FixArray xs) (tag :: ys) ->
+  Prefix (FixArray (x :: xs))
+  (Ascii b1 b2 b3 b4 true false false true :: y ++ ys).
+Proof.
+Admitted.
+
 Lemma prefix_array16_cons: forall x xs y ys s1 s2 t1 t2,
   (t1, t2) = ascii16_of_nat (length xs) ->
   (s1, s2) = ascii16_of_nat (length (x :: xs)) ->
@@ -361,6 +372,57 @@ destruct_serialize obj2 y0.
  reflexivity.
 Qed.
 
+Lemma prefix_array32_cons: forall x xs y ys s1 s2 s3 s4 t1 t2 t3 t4,
+  (t1, t2, (t3, t4)) = ascii32_of_nat (length xs) ->
+  (s1, s2, (s3, s4)) = ascii32_of_nat (length (x :: xs)) ->
+  Serialized x y ->
+  Prefix x y ->
+  Serialized (Array32 xs) ("221" :: t1 :: t2 :: t3 :: t4 :: ys) ->
+  Prefix (Array32 xs) ("221" :: t1 :: t2 :: t3 :: t4 :: ys) ->
+  Prefix (Array32 (x :: xs)) ("221" :: s1 :: s2 :: s3 :: s4 :: y ++ ys).
+Proof.
+Admitted.
+
+Lemma prefix_fixmap_cons: forall x1 x2 xs y1 y2 tag ys b1 b2 b3 b4 b5 b6 b7 b8,
+  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length ((x1, x2) :: xs)) ->
+  Serialized x1 y1 ->
+  Prefix x1 y1 ->
+  Serialized x2 y2 ->
+  Prefix x2 y2 ->
+  Serialized (FixMap xs) (tag :: ys) ->
+  Prefix (FixMap xs) (tag :: ys) ->
+  Prefix (FixMap ((x1, x2) :: xs))
+  (Ascii b1 b2 b3 b4 true false false true :: y1 ++ y2 ++ ys).
+Proof.
+Admitted.
+
+Lemma prefix_map16_cons: forall x1 x2 xs y1 y2 ys s1 s2 t1 t2,
+  (t1, t2) = ascii16_of_nat (length xs) ->
+  (s1, s2) = ascii16_of_nat (length ((x1, x2) :: xs)) ->
+  Serialized x1 y1 ->
+  Prefix x1 y1 ->
+  Serialized x2 y2 ->
+  Prefix x2 y2 ->
+  Serialized (Map16 xs) ("222" :: t1 :: t2 :: ys) ->
+  Prefix (Map16 xs) ("222" :: t1 :: t2 :: ys) ->
+  Prefix (Map16 ((x1, x2) :: xs)) ("222" :: s1 :: s2 :: y1 ++ y2 ++ ys).
+Proof.
+Admitted.
+
+Lemma prefix_map32_cons : forall x1 x2 xs y1 y2 ys s1 s2 s3 s4 t1 t2 t3 t4,
+  (t1, t2, (t3, t4)) = ascii32_of_nat (length xs) ->
+  (s1, s2, (s3, s4)) = ascii32_of_nat (length ((x1, x2) :: xs)) ->
+  Serialized x1 y1 ->
+  Prefix x1 y1 ->
+  Serialized x2 y2 ->
+  Prefix x2 y2 ->
+  Serialized (Map32 xs) ("223" :: t1 :: t2 :: t3 :: t4 :: ys) ->
+  Prefix (Map32 xs) ("223" :: t1 :: t2 :: t3 :: t4 :: ys) ->
+  Prefix (Map32 ((x1, x2) :: xs)) ("223" :: s1 :: s2 :: s3 :: s4 :: y1 ++ y2 ++ ys).
+Proof.
+Admitted.
+
+
 Hint Resolve
   prefix_true prefix_false
   prefix_nil prefix_pfixnum prefix_nfixnum
@@ -390,6 +452,10 @@ intro.
 pattern obj1,x.
 apply Serialized_ind; intros; auto with prefix.
  apply (prefix_fixraw _ b1 b2 b3 b4 b5 b6 b7 b8); auto.
-Focus 2.
+ apply (prefix_fixarray_cons _ _ _ tag _ b1 b2 b3 b4 b5 b6 b7 b8); auto.
  apply prefix_array16_cons with (t1:=t1) (t2:=t2); auto.
-Admitted.
+ apply prefix_array32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
+ apply prefix_fixmap_cons with (tag:=tag) (b5:=b5) (b6:=b6) (b7:=b7) (b8:=b8); auto.
+ apply prefix_map16_cons with (t1:=t1) (t2:=t2); auto.
+ apply prefix_map32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
+Qed.
