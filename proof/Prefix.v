@@ -271,7 +271,15 @@ Qed.
 Lemma prefix_fixmap_nil:
   Prefix (FixMap []) ["128"].
 Proof.
-straight_forward.
+unfold Prefix; intros.
+destruct_serialize obj2 y.
+rewrite_for obj2.
+apply ascii8_not_O in H12; [ contradiction |].
+inversion H2.
+split; [ simpl; omega |].
+transitivity (pow 4); [ exact H21 |].
+apply pow_lt.
+auto.
 Qed.
 
 Lemma prefix_map16_nil:
@@ -312,16 +320,46 @@ split.
  exact H21.
 Qed.
 
-Lemma prefix_fixarray_cons: forall x xs y tag ys b1 b2 b3 b4 b5 b6 b7 b8,
-  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length (x :: xs)) ->
+Lemma prefix_fixarray_cons: forall x xs y ys b1 b2 b3 b4 b5 b6 b7 b8,
+  Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat (length xs) ->
+  Ascii b5 b6 b7 b8 false false false false = ascii8_of_nat (length (x::xs)) ->
   Serialized x y ->
   Prefix x y ->
-  Serialized (FixArray xs) (tag :: ys) ->
-  Prefix (FixArray xs) (tag :: ys) ->
-  Prefix (FixArray (x :: xs))
-  (Ascii b1 b2 b3 b4 true false false true :: y ++ ys).
+  Serialized (FixArray xs) ((Ascii b1 b2 b3 b4 true false false true)::ys) ->
+  Prefix (FixArray xs) ((Ascii b1 b2 b3 b4 true false false true)::ys) ->
+  Prefix (FixArray (x :: xs)) ((Ascii b5 b6 b7 b8 true false false true)::y ++ ys).
 Proof.
-Admitted.
+unfold Prefix.
+intros.
+destruct_serialize obj2 y0.
+rewrite_for y0.
+rewrite_for obj2.
+assert (y ++ ys = y1 ++ ys1); [| rewrite_for (y++ys); reflexivity ].
+generalize H12; intro Happ; clear H12.
+rewrite <- (app_assoc y ys xs0), <- (app_assoc y1 ys1 ys0) in Happ.
+inversion H7.
+inversion H8.
+apply (H2 x0 y1 (ys++xs0) (ys1++ys0))in H1; auto.
+rewrite_for y1.
+apply app_same in Happ.
+apply (H4 (FixArray xs1) (Ascii b0 b9 b10 b11 true false false true :: ys1) xs0 ys0) in H3; auto.
+  inversion H3.
+  reflexivity.
+
+  simpl.
+  unfold ascii8 in *.
+  rewrite <- Happ.
+  rewrite H0 in H18.
+  apply ascii8_of_nat_eq in H18; [
+    | transitivity (pow 4); [| apply pow_lt]; auto
+    | transitivity (pow 4); [| apply pow_lt]; auto ].
+  simpl in H18.
+  inversion H18.
+  rewrite <- H28 in H16.
+  rewrite <- H16 in H.
+  inversion H.
+  reflexivity.
+Qed.
 
 Lemma prefix_array16_cons: forall x xs y ys s1 s2 t1 t2,
   (t1, t2) = ascii16_of_nat (length xs) ->
@@ -421,18 +459,61 @@ destruct_serialize obj2 y0;
   reflexivity.
 Qed.
 
-Lemma prefix_fixmap_cons: forall x1 x2 xs y1 y2 tag ys b1 b2 b3 b4 b5 b6 b7 b8,
-  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length ((x1, x2) :: xs)) ->
-  Serialized x1 y1 ->
-  Prefix x1 y1 ->
-  Serialized x2 y2 ->
-  Prefix x2 y2 ->
-  Serialized (FixMap xs) (tag :: ys) ->
-  Prefix (FixMap xs) (tag :: ys) ->
-  Prefix (FixMap ((x1, x2) :: xs))
-  (Ascii b1 b2 b3 b4 true false false true :: y1 ++ y2 ++ ys).
+Lemma prefix_fixmap_cons: forall x1 x2 xs y1 y2 ys b1 b2 b3 b4 b5 b6 b7 b8,
+  Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat (length xs) ->
+  Ascii b5 b6 b7 b8 false false false false = ascii8_of_nat (length ((x1,x2)::xs)) ->
+  Serialized x1 y1 -> Prefix x1 y1 ->
+  Serialized x2 y2 -> Prefix x2 y2 ->
+  Serialized (FixMap xs) (Ascii b1 b2 b3 b4 false false false true :: ys) ->
+  Prefix (FixMap xs) (Ascii b1 b2 b3 b4 false false false true :: ys) ->
+  Prefix (FixMap ((x1, x2) :: xs)) (Ascii b5 b6 b7 b8 false false false true :: y1 ++ y2 ++ ys).
 Proof.
-Admitted.
+unfold Prefix.
+intros.
+destruct_serialize obj2 y; rewrite_for y; rewrite_for obj2.
+ rewrite_for b5.
+ rewrite_for b6.
+ rewrite_for b7.
+ rewrite_for b8.
+ apply ascii8_not_O in H0; [ contradiction |].
+ split; [ simpl; omega |].
+ inversion H9.
+ transitivity (pow 4); auto.
+ apply pow_lt.
+ auto.
+
+assert (y1 ++ y2 ++ ys = y0 ++ y3 ++ ys1); [| rewrite_for (y1 ++ y2 ++ ys); reflexivity ].
+generalize H14; intro Happ; clear H14.
+replace ((y1 ++ y2 ++ ys) ++ xs0) with (y1 ++ y2 ++ ys ++ xs0) in Happ;
+  [| repeat (rewrite app_assoc); reflexivity ].
+replace ((y0 ++ y3 ++ ys1) ++ ys0) with (y0 ++ y3 ++ ys1 ++ ys0) in Happ;
+  [| repeat (rewrite app_assoc); reflexivity ].
+inversion H9.
+inversion H10.
+apply (H2 x0 y0 (y2 ++ ys ++ xs0) (y3 ++ ys1 ++ ys0))in H1; auto.
+rewrite_for y1.
+apply app_same in Happ.
+apply (H4 x3 y3 (ys ++ xs0) (ys1 ++ ys0)) in H3; auto.
+rewrite_for y3.
+apply app_same in Happ.
+apply (H6 (FixMap xs1) (Ascii b0 b9 b10 b11 false false false true :: ys1) xs0 ys0) in H5; auto.
+ inversion H5.
+ reflexivity.
+
+ simpl.
+ unfold ascii8 in *.
+ rewrite <- Happ.
+ rewrite H0 in H20.
+  apply ascii8_of_nat_eq in H20; [
+    | transitivity (pow 4); [| apply pow_lt]; auto
+    | transitivity (pow 4); [| apply pow_lt]; auto ].
+ simpl in H20.
+ inversion H20.
+ rewrite H3 in H.
+ rewrite <- H19 in H.
+ inversion H.
+ reflexivity.
+Qed.
 
 Lemma prefix_map16_cons: forall x1 x2 xs y1 y2 ys s1 s2 t1 t2,
   (t1, t2) = ascii16_of_nat (length xs) ->
@@ -576,10 +657,10 @@ intro.
 pattern obj1,x.
 apply Serialized_ind; intros; auto with prefix.
  apply (prefix_fixraw _ b1 b2 b3 b4 b5 b6 b7 b8); auto.
- apply (prefix_fixarray_cons _ _ _ tag _ b1 b2 b3 b4 b5 b6 b7 b8); auto.
+ apply prefix_fixarray_cons with (b1:=b1) (b2:=b2) (b3:=b3) (b4:=b4); auto.
  apply prefix_array16_cons with (t1:=t1) (t2:=t2); auto.
  apply prefix_array32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
- apply prefix_fixmap_cons with (tag:=tag) (b5:=b5) (b6:=b6) (b7:=b7) (b8:=b8); auto.
+ apply prefix_fixmap_cons with (b1:=b1) (b2:=b2) (b3:=b3) (b4:=b4); auto.
  apply prefix_map16_cons with (t1:=t1) (t2:=t2); auto.
  apply prefix_map32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
 Qed.

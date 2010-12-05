@@ -48,11 +48,12 @@ Inductive Serialized : object -> list ascii8 -> Prop :=
    Serialized (Raw32 cs) ("219"::s1::s2::s3::s4::cs)
 | SFixArrayNil :
   Serialized (FixArray []) ["072"]
-| SFixArrayCons : forall x xs y tag ys b1 b2 b3 b4 b5 b6 b7 b8,
-  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length (x::xs)) ->
+| SFixArrayCons : forall x xs y ys b1 b2 b3 b4 b5 b6 b7 b8,
+  Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat (length xs) ->
+  Ascii b5 b6 b7 b8 false false false false = ascii8_of_nat (length (x::xs)) ->
   Serialized x y ->
-  Serialized (FixArray xs) (tag::ys) ->
-  Serialized (FixArray (x::xs)) ((Ascii b1 b2 b3 b4 true false false true)::y ++ ys)
+  Serialized (FixArray xs) ((Ascii b1 b2 b3 b4 true false false true)::ys) ->
+  Serialized (FixArray (x::xs)) ((Ascii b5 b6 b7 b8 true false false true)::y ++ ys)
 | SArray16Nil :
   Serialized (Array16 []) ["220"; "000"; "000"]
 | SArray16Cons : forall x xs y ys s1 s2 t1 t2,
@@ -71,12 +72,13 @@ Inductive Serialized : object -> list ascii8 -> Prop :=
   Serialized (Array32 (x::xs)) ("221"::s1::s2::s3::s4::y ++ ys)
 | SFixMapNil :
   Serialized (FixMap []) ["128"]
-| SFixMapCons : forall x1 x2 xs y1 y2 tag ys b1 b2 b3 b4 b5 b6 b7 b8,
-  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length ((x1,x2)::xs)) ->
+| SFixMapCons : forall x1 x2 xs y1 y2 ys b1 b2 b3 b4 b5 b6 b7 b8,
+  Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat (length xs) ->
+  Ascii b5 b6 b7 b8 false false false false = ascii8_of_nat (length ((x1,x2)::xs)) ->
   Serialized x1 y1 ->
   Serialized x2 y2 ->
-  Serialized (FixMap xs) (tag::ys) ->
-  Serialized (FixMap ((x1,x2)::xs)) ((Ascii b1 b2 b3 b4 true false false true)::y1 ++ y2  ++ ys)
+  Serialized (FixMap xs) ((Ascii b1 b2 b3 b4 false false false true)::ys) ->
+  Serialized (FixMap ((x1,x2)::xs)) ((Ascii b5 b6 b7 b8 false false false true)::y1 ++ y2  ++ ys)
 | SMap16Nil :
   Serialized (Map16 []) ["222"; "000"; "000"]
 | SMap16Cons : forall x1 x2 xs y1 y2 ys s1 s2 t1 t2,
