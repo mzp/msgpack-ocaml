@@ -657,10 +657,10 @@ intro.
 pattern obj1,x.
 apply Serialized_ind; intros; auto with prefix.
  apply (prefix_fixraw _ b1 b2 b3 b4 b5 b6 b7 b8); auto.
- apply (prefix_fixarray_cons _ _ _ tag _ b1 b2 b3 b4 b5 b6 b7 b8); auto.
+ apply prefix_fixarray_cons with (b1:=b1) (b2:=b2) (b3:=b3) (b4:=b4); auto.
  apply prefix_array16_cons with (t1:=t1) (t2:=t2); auto.
  apply prefix_array32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
- apply prefix_fixmap_cons with (tag:=tag) (b5:=b5) (b6:=b6) (b7:=b7) (b8:=b8); auto.
+ apply prefix_fixmap_cons with (b1:=b1) (b2:=b2) (b3:=b3) (b4:=b4); auto.
  apply prefix_map16_cons with (t1:=t1) (t2:=t2); auto.
  apply prefix_map32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
 Qed.
