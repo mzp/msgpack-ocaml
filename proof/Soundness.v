@@ -1,32 +1,39 @@
-Require Import ListUtil Object MultiByte SerializeSpec Prefix.
+Require Import Ascii.
+Require Import ListUtil Object MultiByte SerializeSpec Prefix ProofUtil.
 
 Definition Soundness obj1 x : Prop := forall obj2,
+  Serialized obj1 x ->
   Serialized obj2 x ->
   Valid obj1 ->
   Valid obj2 ->
   obj1 = obj2.
 
+Ltac straightfoward :=
+  unfold Soundness;
+  intros obj2 Hs1 Hs2 V1 V2;
+  inversion Hs2;
+  reflexivity.
+
+Lemma  soundness_nil:
+  Soundness Nil ["192"].
+Proof.
+straightfoward.
+Qed.
+
 Lemma soundness_true :
-  Serialized (Bool true) ["195"] ->
   Soundness (Bool true) ["195"].
 Proof.
-unfold Soundness.
-intros.
-inversion H0.
-reflexivity.
+straightfoward.
 Qed.
 
 Lemma soundness_false :
-  Serialized (Bool false) ["194"] ->
   Soundness (Bool false) ["194"].
 Proof.
-unfold Soundness.
-intros.
-inversion H0.
-reflexivity.
+straightfoward.
 Qed.
 
-Lemma soundness_array16_nil :
+
+(*Lemma soundness_array16_nil :
   Serialized (Array16 []) ["220"; "000"; "000"] ->
   Soundness (Array16 []) ["220"; "000"; "000"].
 Proof.
@@ -101,28 +108,27 @@ inversion H6.
   inversion Hs'2.
   reflexivity.
 Qed.*)
+*)
+
+Hint Resolve
+  soundness_nil soundness_true soundness_false
+  : soundness.
+
+Lemma soundness_intro: forall obj x,
+  (Serialized obj x -> Soundness obj x)->
+  Soundness obj x.
+Proof.
+unfold Soundness.
+intros.
+apply H in H1; auto.
+Qed.
 
 Lemma soundness : forall obj1 x,
-  Serialized obj1 x ->
   Soundness obj1 x.
 Proof.
+intros.
+apply soundness_intro.
+intro.
+pattern obj1,x.
+apply Serialized_ind; intros; auto with soundness.
 Admitted.
-(*intros.
-generalize H.
-pattern obj1, x.
-apply Serialized_ind; auto; intros.
- (* true *)
- apply soundness_true in H0.
- assumption.
-
- (* false *)
- apply soundness_false in H0.
- assumption.
-
- (* Array16 [] *)
- apply soundness_array16_nil in H0.
- assumption.
-
- eapply soundness_array16_cons; auto; assumption.
-Qed.
-*)
