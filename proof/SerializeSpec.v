@@ -47,7 +47,7 @@ Inductive Serialized : object -> list ascii8 -> Prop :=
   ((s1,s2),(s3,s4)) =  ascii32_of_nat (length cs) ->
    Serialized (Raw32 cs) ("219"::s1::s2::s3::s4::cs)
 | SFixArrayNil :
-  Serialized (FixArray []) ["072"]
+  Serialized (FixArray []) ["144"]
 | SFixArrayCons : forall x xs y ys b1 b2 b3 b4 b5 b6 b7 b8,
   Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat (length xs) ->
   Ascii b5 b6 b7 b8 false false false false = ascii8_of_nat (length (x::xs)) ->

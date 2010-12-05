@@ -229,9 +229,14 @@ reflexivity.
 Qed.
 
 Lemma prefix_fixarray_nil:
-  Prefix (FixArray []) ["072"].
+  Prefix (FixArray []) ["144"].
 Proof.
 straight_forward.
+apply ascii8_not_O in H7; [ contradiction |].
+rewrite_for obj2.
+inversion V2.
+split; [ simpl; omega |].
+transitivity (pow 4); [ exact H13 | apply pow_lt; auto ].
 Qed.
 
 Lemma  prefix_array16_nil:
@@ -331,18 +336,26 @@ Lemma prefix_fixarray_cons: forall x xs y ys b1 b2 b3 b4 b5 b6 b7 b8,
 Proof.
 unfold Prefix.
 intros.
-destruct_serialize obj2 y0.
-rewrite_for y0.
-rewrite_for obj2.
-assert (y ++ ys = y1 ++ ys1); [| rewrite_for (y++ys); reflexivity ].
-generalize H12; intro Happ; clear H12.
-rewrite <- (app_assoc y ys xs0), <- (app_assoc y1 ys1 ys0) in Happ.
-inversion H7.
-inversion H8.
-apply (H2 x0 y1 (ys++xs0) (ys1++ys0))in H1; auto.
-rewrite_for y1.
-apply app_same in Happ.
-apply (H4 (FixArray xs1) (Ascii b0 b9 b10 b11 true false false true :: ys1) xs0 ys0) in H3; auto.
+destruct_serialize obj2 y0; rewrite_for y0; rewrite_for obj2.
+ inversion H6.
+ rewrite_for b5.
+ rewrite_for b6.
+ rewrite_for b7.
+ rewrite_for b8.
+ apply ascii8_not_O in H0; [contradiction |].
+ split; [ simpl; omega |].
+ inversion H7.
+ transitivity (pow 4); [ exact H19 | apply pow_lt; auto].
+
+ assert (y ++ ys = y1 ++ ys1); [| rewrite_for (y++ys); reflexivity ].
+ generalize H12; intro Happ; clear H12.
+ rewrite <- (app_assoc y ys xs0), <- (app_assoc y1 ys1 ys0) in Happ.
+ inversion H7.
+ inversion H8.
+ apply (H2 x0 y1 (ys++xs0) (ys1++ys0))in H1; auto.
+ rewrite_for y1.
+ apply app_same in Happ.
+ apply (H4 (FixArray xs1) (Ascii b0 b9 b10 b11 true false false true :: ys1) xs0 ys0) in H3; auto.
   inversion H3.
   reflexivity.
 
