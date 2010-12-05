@@ -444,7 +444,49 @@ Lemma prefix_map16_cons: forall x1 x2 xs y1 y2 ys s1 s2 t1 t2,
   Serialized (Map16 xs) ("222" :: t1 :: t2 :: ys) ->
   Prefix (Map16 xs) ("222" :: t1 :: t2 :: ys) ->
   Prefix (Map16 ((x1, x2) :: xs)) ("222" :: s1 :: s2 :: y1 ++ y2 ++ ys).
-Admitted.
+Proof.
+unfold Prefix.
+intros.
+destruct_serialize obj2 y; rewrite_for y; rewrite_for obj2.
+ inversion H11.
+ rewrite_for s1.
+ rewrite_for s2.
+ apply ascii16_not_O in H0; [ contradiction |].
+ inversion H9.
+ split; [ simpl; omega | exact H20 ].
+
+ inversion H14.
+ rewrite_for s1.
+ rewrite_for s2.
+ assert( y1 ++ y2 ++ ys = y0 ++ y3  ++ ys1); [| rewrite_for (y1 ++ y2 ++ ys); reflexivity ].
+ replace ((y1 ++ y2 ++ ys) ++ xs0) with (y1 ++ y2 ++ ys ++ xs0) in H21;
+   [| repeat (rewrite app_assoc); reflexivity ].
+ replace ((y0 ++ y3 ++ ys1) ++ ys0) with (y0 ++ y3 ++ ys1 ++ ys0) in H21;
+   [| repeat (rewrite app_assoc); reflexivity ].
+ inversion H9.
+ inversion H10.
+ apply (H2 x0 y0 (y2 ++ ys ++ xs0) (y3 ++ ys1 ++ ys0))in H1; auto.
+ rewrite_for y1.
+ apply app_same in H21.
+ apply (H4 x3 y3 (ys ++ xs0) (ys1 ++ ys0)) in H3; auto.
+ rewrite_for y3.
+ apply app_same in H21.
+ apply (H6 (Map16 xs1) ("222" :: t0 :: t3 :: ys1) xs0 ys0) in H5; auto.
+  inversion H5.
+  reflexivity.
+
+  simpl.
+  unfold ascii8 in *.
+  rewrite <- H21.
+  rewrite H0 in H15.
+  apply ascii16_of_nat_eq in H15; auto.
+  simpl in H15.
+  inversion H15.
+  rewrite H3 in H.
+  rewrite <- H13 in H.
+  inversion H.
+  reflexivity.
+Qed.
 
 Lemma prefix_map32_cons : forall x1 x2 xs y1 y2 ys s1 s2 s3 s4 t1 t2 t3 t4,
   (t1, t2, (t3, t4)) = ascii32_of_nat (length xs) ->
@@ -457,8 +499,53 @@ Lemma prefix_map32_cons : forall x1 x2 xs y1 y2 ys s1 s2 s3 s4 t1 t2 t3 t4,
   Prefix (Map32 xs) ("223" :: t1 :: t2 :: t3 :: t4 :: ys) ->
   Prefix (Map32 ((x1, x2) :: xs)) ("223" :: s1 :: s2 :: s3 :: s4 :: y1 ++ y2 ++ ys).
 Proof.
-Admitted.
+unfold Prefix.
+intros.
+destruct_serialize obj2 y; rewrite_for y; rewrite_for obj2.
+ inversion H11.
+ rewrite_for s1.
+ rewrite_for s2.
+ rewrite_for s3.
+ rewrite_for s4.
+ apply ascii32_not_O in H0; [ contradiction |].
+ inversion H9.
+ split; [ simpl; omega | exact H20 ].
 
+ inversion H14.
+ rewrite_for s1.
+ rewrite_for s2.
+ rewrite_for s3.
+ rewrite_for s4.
+ generalize H23; intro Happ; clear H23.
+ assert( y1 ++ y2 ++ ys = y0 ++ y3  ++ ys1); [| rewrite_for (y1 ++ y2 ++ ys); reflexivity ].
+ replace ((y1 ++ y2 ++ ys) ++ xs0) with (y1 ++ y2 ++ ys ++ xs0) in Happ;
+   [| repeat (rewrite app_assoc); reflexivity ].
+ replace ((y0 ++ y3 ++ ys1) ++ ys0) with (y0 ++ y3 ++ ys1 ++ ys0) in Happ;
+   [| repeat (rewrite app_assoc); reflexivity ].
+ inversion H9.
+ inversion H10.
+ apply (H2 x0 y0 (y2 ++ ys ++ xs0) (y3 ++ ys1 ++ ys0)) in H1; auto.
+ rewrite_for y1.
+ apply app_same in Happ.
+ apply (H4 x3 y3 (ys ++ xs0) (ys1 ++ ys0)) in H3; auto.
+ rewrite_for y3.
+ apply app_same in Happ.
+ apply (H6 (Map32 xs1) ("223" :: t0 :: t5 :: t6 :: t7 :: ys1) xs0 ys0) in H5; auto.
+  inversion H5.
+  reflexivity.
+
+  simpl.
+  unfold ascii8 in *.
+  rewrite <- Happ.
+  rewrite H0 in H15.
+  apply ascii32_of_nat_eq in H15; auto.
+  simpl in H15.
+  inversion H15.
+  rewrite H3 in H.
+  rewrite <- H13 in H.
+  inversion H.
+  reflexivity.
+Qed.
 
 Hint Resolve
   prefix_true prefix_false
