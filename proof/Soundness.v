@@ -311,22 +311,21 @@ Lemma soundness_array16_cons: forall x xs t1 t2 s1 s2 y ys,
   Serialized (Array16 xs) ("220" :: t1 :: t2 :: ys) ->
   (Serialized (Array16 xs) ("220" :: t1 :: t2 :: ys) ->
     Soundness (Array16 xs) ("220" :: t1 :: t2 :: ys)) ->
-  Serialized (Array16 (x :: xs)) ("220" :: s1 :: s2 :: y ++ ys) ->
   Soundness (Array16 (x :: xs)) ("220" :: s1 :: s2 :: y ++ ys).
 Proof.
 unfold Soundness.
 intros.
-inversion H7.
+inversion H6.
  rewrite_for s1.
  rewrite_for s2.
  apply ascii16_not_O in H0; [ contradiction |].
  split; [ simpl; omega |].
- inversion H8.
+ inversion H7.
  assumption.
 
  rewrite_for obj2.
+ inversion H7.
  inversion H8.
- inversion H9.
  assert (y = y0).
   generalize prefix.
   unfold Prefix.
@@ -335,18 +334,18 @@ inversion H7.
 
   rewrite_for y0.
   apply H2 with (obj2:=x0) in H1; auto.
-  apply app_same in H12.
+  apply app_same in H11.
   apply H4 with (obj2:=(Array16 xs0)) in H3; auto.
    inversion H3.
    rewrite H1.
    reflexivity.
 
-   rewrite H15 in H0.
+   rewrite H14 in H0.
    simpl in H0.
    apply ascii16_of_nat_eq in H0; auto.
    inversion H0.
-   rewrite <- H28 in H.
-   rewrite <- H13 in H.
+   rewrite <- H27 in H.
+   rewrite <- H12 in H.
    inversion H.
    rewrite_for t0.
    rewrite_for t3.
@@ -361,24 +360,23 @@ Lemma soundness_array32_cons: forall x xs y ys s1 s2 s3 s4 t1 t2 t3 t4,
   (Serialized x y -> Soundness x y) ->
   Serialized (Array32 xs) ("221"::t1::t2::t3::t4::ys) ->
   (Serialized (Array32 xs) ("221"::t1::t2::t3::t4::ys) -> Soundness (Array32 xs) ("221"::t1::t2::t3::t4::ys)) ->
-  Serialized (Array32 (x::xs)) ("221"::s1::s2::s3::s4::y ++ ys) ->
   Soundness (Array32 (x::xs)) ("221"::s1::s2::s3::s4::y ++ ys).
 Proof.
 unfold Soundness.
 intros.
-inversion H7.
+inversion H6.
  rewrite_for s1.
  rewrite_for s2.
  rewrite_for s3.
  rewrite_for s4.
  apply ascii32_not_O in H0; [ contradiction |].
  split; [ simpl; omega |].
- inversion H8.
+ inversion H7.
  assumption.
 
  rewrite_for obj2.
+ inversion H7.
  inversion H8.
- inversion H9.
  assert (y = y0).
   generalize prefix.
   unfold Prefix.
@@ -387,18 +385,18 @@ inversion H7.
 
   rewrite_for y0.
   apply H2 with (obj2:=x0) in H1; auto.
-  apply app_same in H16.
+  apply app_same in H15.
   apply H4 with (obj2:=(Array32 xs0)) in H3; auto.
    inversion H3.
    rewrite H1.
    reflexivity.
 
-   rewrite H17 in H0.
+   rewrite H16 in H0.
    simpl in H0.
    apply ascii32_of_nat_eq in H0; auto.
    inversion H0.
-   rewrite <- H30 in H.
-   rewrite <- H15 in H.
+   rewrite <- H29 in H.
+   rewrite <- H14 in H.
    inversion H.
    rewrite_for t0.
    rewrite_for t5.
@@ -526,7 +524,7 @@ inversion H8.
    assumption.
 Qed.
 
-Lemma prefix_map32_cons : forall x1 x2 xs y1 y2 ys s1 s2 s3 s4 t1 t2 t3 t4,
+Lemma soundness_map32_cons : forall x1 x2 xs y1 y2 ys s1 s2 s3 s4 t1 t2 t3 t4,
   (t1, t2, (t3, t4)) = ascii32_of_nat (length xs) ->
   (s1, s2, (s3, s4)) = ascii32_of_nat (length ((x1, x2) :: xs)) ->
   Serialized x1 y1 ->
@@ -616,5 +614,10 @@ intro.
 pattern obj1,x.
 apply Serialized_ind; intros; auto with soundness.
  apply soundness_fixraw with (b6:=b6) (b7:=b7) (b8:=b8); auto.
-
-Admitted.
+ apply soundness_fixarray_cons with (b1:=b1) (b2:=b2) (b3:=b3) (b4:=b4); auto.
+ apply soundness_array16_cons with (t1:=t1) (t2:=t2); auto.
+ apply soundness_array32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
+ apply soundness_fixmap_cons with (b1:=b1) (b2:=b2) (b3:=b3) (b4:=b4); auto.
+ apply soundness_map16_cons with (t1:=t1) (t2:=t2); auto.
+ apply soundness_map32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
+Qed.
