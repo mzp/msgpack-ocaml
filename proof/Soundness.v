@@ -1,5 +1,5 @@
 Require Import Ascii.
-Require Import ListUtil Object MultiByte SerializeSpec Prefix ProofUtil.
+Require Import ListUtil Object MultiByte SerializeSpec Prefix ProofUtil Pow.
 
 Definition Soundness obj1 x : Prop := forall obj2,
   Serialized obj1 x ->
@@ -169,23 +169,86 @@ Proof.
 straightfoward.
 Qed.
 
-(*Lemma soundness_array16_nil :
-  Serialized (Array16 []) ["220"; "000"; "000"] ->
+Lemma soundness_fixarray_nil :
+  Soundness (FixArray []) ["144"].
+Proof.
+unfold Soundness.
+intros.
+inversion H0; auto.
+apply ascii8_not_O in H10; [ contradiction |].
+split; [ simpl; omega |].
+rewrite_for obj2.
+inversion H2.
+transitivity (pow 4); [ assumption |].
+apply pow_lt.
+auto.
+Qed.
+
+Lemma soundness_array16_nil :
   Soundness (Array16 []) ["220"; "000"; "000"].
 Proof.
-unfold Soundness; intros.
-inversion H0.
- reflexivity.
+unfold Soundness.
+intros.
+inversion H0; auto.
+apply ascii16_not_O in H8; [ contradiction |].
+split; [ simpl; omega |].
+rewrite_for obj2.
+inversion H2.
+assumption.
+Qed.
 
- apply ascii16_not_O in H8.
-  contradiction.
+Lemma soundness_array32_nil:
+  Soundness (Array32 []) ["221"; "000"; "000";"000"; "000"].
+Proof.
+unfold Soundness.
+intros.
+inversion H0; auto.
+apply ascii32_not_O in H10; [ contradiction |].
+split; [ simpl; omega |].
+rewrite_for obj2.
+inversion H2.
+assumption.
+Qed.
 
-  split.
-   apply length_lt_O.
+Lemma soundness_fixmap_nil:
+  Soundness (FixMap []) ["128"].
+Proof.
+unfold Soundness.
+intros.
+inversion H0; auto.
+apply ascii8_not_O in H10; [ contradiction |].
+split; [ simpl; omega |].
+rewrite_for obj2.
+inversion H2.
+transitivity (pow 4); [ assumption |].
+apply pow_lt.
+auto.
+Qed.
 
-   rewrite <- H7 in *.
-   inversion H2.
-   assumption.
+Lemma soundness_map16_nil:
+  Soundness (Map16 []) ["222"; "000"; "000"].
+Proof.
+unfold Soundness.
+intros.
+inversion H0; auto.
+apply ascii16_not_O in H7; [ contradiction |].
+split; [ simpl; omega |].
+rewrite_for obj2.
+inversion H2.
+assumption.
+Qed.
+
+Lemma soundness_map32_nil:
+  Soundness (Map32 []) ["223"; "000"; "000";"000"; "000"].
+Proof.
+unfold Soundness.
+intros.
+inversion H0; auto.
+apply ascii32_not_O in H10; [ contradiction |].
+split; [ simpl; omega |].
+rewrite_for obj2.
+inversion H2.
+assumption.
 Qed.
 
 Lemma soundness_array16_cons: forall x xs t1 t2 s1 s2 y ys,
