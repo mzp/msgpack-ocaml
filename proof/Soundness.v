@@ -251,6 +251,58 @@ inversion H2.
 assumption.
 Qed.
 
+Lemma soundness_fixarray_cons: forall x xs y ys b1 b2 b3 b4 b5 b6 b7 b8,
+  Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat (length xs) ->
+  Ascii b5 b6 b7 b8 false false false false = ascii8_of_nat (length (x::xs)) ->
+  Serialized x y ->
+  Soundness x y ->
+  Serialized (FixArray xs) ((Ascii b1 b2 b3 b4 true false false true)::ys) ->
+  Soundness (FixArray xs) ((Ascii b1 b2 b3 b4 true false false true)::ys) ->
+  Soundness (FixArray (x :: xs)) ((Ascii b5 b6 b7 b8 true false false true)::y ++ ys).
+Proof.
+unfold Soundness.
+intros.
+inversion H6.
+ rewrite_for b5.
+ rewrite_for b6.
+ rewrite_for b7.
+ rewrite_for b8.
+ apply ascii8_not_O in H0; [ contradiction |].
+ split; [ simpl; omega |].
+ inversion H7.
+ transitivity (pow 4); [| apply pow_lt ]; auto.
+
+ rewrite_for obj2.
+ inversion H7.
+ inversion H8.
+ assert (y = y0).
+  generalize prefix.
+  unfold Prefix.
+  intro Hprefix.
+  apply (Hprefix x _ x0 _ ys ys0); auto.
+
+  rewrite_for y0.
+  apply H2 with (obj2:=x0) in H1; auto.
+  apply app_same in H15.
+  apply H4 with (obj2:=(FixArray xs0)) in H3; auto.
+   inversion H3.
+   rewrite H1.
+   reflexivity.
+
+   rewrite H16 in H0.
+   apply ascii8_of_nat_eq in H0; [| transitivity (pow 4); [| apply pow_lt]; auto
+                                  | transitivity (pow 4); [| apply pow_lt]; auto].
+   simpl H0.
+   inversion H0.
+   rewrite <- H29 in H.
+   rewrite <- H14 in H.
+   inversion H.
+   rewrite_for b9.
+   rewrite_for b10.
+   rewrite_for ys.
+   assumption.
+Qed.
+
 Lemma soundness_array16_cons: forall x xs t1 t2 s1 s2 y ys,
   (t1, t2) = ascii16_of_nat (length xs) ->
   (s1, s2) = ascii16_of_nat (length (x :: xs)) ->
@@ -352,6 +404,66 @@ inversion H7.
    rewrite_for t5.
    rewrite_for t6.
    rewrite_for t7.
+   rewrite_for ys.
+   assumption.
+Qed.
+
+Lemma soundness_fixmap_cons: forall x1 x2 xs y1 y2 ys b1 b2 b3 b4 b5 b6 b7 b8,
+  Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat (length xs) ->
+  Ascii b5 b6 b7 b8 false false false false = ascii8_of_nat (length ((x1,x2)::xs)) ->
+  Serialized x1 y1 -> Soundness x1 y1 ->
+  Serialized x2 y2 -> Soundness x2 y2 ->
+  Serialized (FixMap xs) (Ascii b1 b2 b3 b4 false false false true :: ys) ->
+  Soundness (FixMap xs) (Ascii b1 b2 b3 b4 false false false true :: ys) ->
+  Soundness (FixMap ((x1, x2) :: xs)) (Ascii b5 b6 b7 b8 false false false true :: y1 ++ y2 ++ ys).
+Proof.
+unfold Soundness.
+intros.
+inversion H8.
+ rewrite_for b5.
+ rewrite_for b6.
+ rewrite_for b7.
+ rewrite_for b8.
+ apply ascii8_not_O in H0; [ contradiction |].
+ split; [ simpl; omega |].
+ inversion H9.
+ transitivity (pow 4); [| apply pow_lt]; auto.
+
+ rewrite_for obj2.
+ inversion H9.
+ inversion H10.
+ generalize prefix.
+ unfold Prefix.
+ intro Hprefix.
+ assert (y1 = y0).
+  apply (Hprefix x1 _ x0 _ (y2 ++ ys) (y3 ++ ys0)); auto.
+
+  rewrite_for y0.
+  apply app_same in H15.
+  assert (y2 = y3).
+  apply (Hprefix x2 _ x3 _ ys ys0); auto.
+
+  rewrite_for y3.
+  apply H2 with (obj2:=x0) in H1; auto.
+  apply H4 with (obj2:=x3) in H3; auto.
+  apply H6 with (obj2:=(FixMap xs0)) in H5; auto.
+   inversion H5.
+   rewrite H1, H3.
+   reflexivity.
+
+   rewrite H18 in H0.
+   simpl in H0.
+   apply ascii8_of_nat_eq in H0; [| transitivity (pow 4); [| apply pow_lt]; auto
+                                  | transitivity (pow 4); [| apply pow_lt]; auto].
+   inversion H0.
+   rewrite <- H36 in H.
+   rewrite <- H17 in H.
+   inversion H.
+   rewrite_for b0.
+   rewrite_for b9.
+   rewrite_for b10.
+   rewrite_for b11.
+   apply app_same in H15.
    rewrite_for ys.
    assumption.
 Qed.
@@ -504,4 +616,5 @@ intro.
 pattern obj1,x.
 apply Serialized_ind; intros; auto with soundness.
  apply soundness_fixraw with (b6:=b6) (b7:=b7) (b8:=b8); auto.
+
 Admitted.
