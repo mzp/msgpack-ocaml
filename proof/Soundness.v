@@ -128,6 +128,25 @@ inversion Hs2.
 assert (c = c0); [| rewrite_for c ]; auto with ascii.
 Qed.
 
+Lemma soundness_float : forall c,
+  Soundness (Float c) ("202"::list_of_ascii32 c).
+Proof.
+intros.
+unfold Soundness.
+intros obj2 Hs1 Hs2 V1 V2.
+inversion Hs2.
+assert (c = c0); [| rewrite_for c ]; auto with ascii.
+Qed.
+
+Lemma soundness_double : forall c,
+  Soundness (Double c) ("203"::list_of_ascii64 c).
+Proof.
+intros.
+unfold Soundness.
+intros obj2 Hs1 Hs2 V1 V2.
+inversion Hs2.
+assert (c = c0); [| rewrite_for c ]; auto with ascii.
+Qed.
 (*Lemma soundness_array16_nil :
   Serialized (Array16 []) ["220"; "000"; "000"] ->
   Soundness (Array16 []) ["220"; "000"; "000"].
