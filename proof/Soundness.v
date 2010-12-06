@@ -262,51 +262,99 @@ Lemma soundness_array16_cons: forall x xs t1 t2 s1 s2 y ys,
   Serialized (Array16 (x :: xs)) ("220" :: s1 :: s2 :: y ++ ys) ->
   Soundness (Array16 (x :: xs)) ("220" :: s1 :: s2 :: y ++ ys).
 Proof.
-Admitted.
-(*intros.
-generalize H1 H3; intros Hs1 Hs'1.
-apply H2 in H1.
-apply H4 in H3.
-unfold Soundness in *.
+unfold Soundness.
 intros.
-inversion H6.
- rewrite <- H11, <- H12 in *.
- apply ascii16_not_O in H0.
-  contradiction.
-
-  split.
-   apply length_lt_O.
-
-   inversion H7.
-   auto.
-
- rewrite <- H13 in *; clear H13.
- inversion H7.
+inversion H7.
+ rewrite_for s1.
+ rewrite_for s2.
+ apply ascii16_not_O in H0; [ contradiction |].
+ split; [ simpl; omega |].
  inversion H8.
- apply prefix in Hs1.
- apply prefix in Hs'1.
- unfold Prefix in *.
+ assumption.
 
- generalize H15 H16; intros Hs2 Hs'2.
- apply (Hs1 _ _ ys ys0) in H15; auto.
- rewrite H15 in *; clear H15.
- apply H1 in Hs2; auto.
- rewrite Hs2.
- apply app_same in H11.
- rewrite H11 in *; clear H11.
+ rewrite_for obj2.
+ inversion H8.
+ inversion H9.
+ assert (y = y0).
+  generalize prefix.
+  unfold Prefix.
+  intro Hprefix.
+  apply (Hprefix x _ x0 _ ys ys0); auto.
 
- assert ((t0,t3) = (t1,t2)).
-  rewrite H, H12.
-  apply (varray16_inv2  _ x0 x); auto.
-  rewrite <- H0, <- H14.
-  reflexivity.
+  rewrite_for y0.
+  apply H2 with (obj2:=x0) in H1; auto.
+  apply app_same in H12.
+  apply H4 with (obj2:=(Array16 xs0)) in H3; auto.
+   inversion H3.
+   rewrite H1.
+   reflexivity.
 
-  inversion H11.
-  rewrite H26, H27 in *.
-  apply H3 in Hs'2; auto.
-  inversion Hs'2.
-  reflexivity.
-Qed.*)
+   rewrite H15 in H0.
+   simpl in H0.
+   apply ascii16_of_nat_eq in H0; auto.
+   inversion H0.
+   rewrite <- H28 in H.
+   rewrite <- H13 in H.
+   inversion H.
+   rewrite_for t0.
+   rewrite_for t3.
+   rewrite_for ys.
+   assumption.
+Qed.
+
+Lemma soundness_array32_cons: forall x xs y ys s1 s2 s3 s4 t1 t2 t3 t4,
+  ((t1,t2),(t3,t4)) = ascii32_of_nat (length xs) ->
+  ((s1,s2),(s3,s4)) = ascii32_of_nat (length (x::xs)) ->
+  Serialized x y ->
+  (Serialized x y -> Soundness x y) ->
+  Serialized (Array32 xs) ("221"::t1::t2::t3::t4::ys) ->
+  (Serialized (Array32 xs) ("221"::t1::t2::t3::t4::ys) -> Soundness (Array32 xs) ("221"::t1::t2::t3::t4::ys)) ->
+  Serialized (Array32 (x::xs)) ("221"::s1::s2::s3::s4::y ++ ys) ->
+  Soundness (Array32 (x::xs)) ("221"::s1::s2::s3::s4::y ++ ys).
+Proof.
+unfold Soundness.
+intros.
+inversion H7.
+ rewrite_for s1.
+ rewrite_for s2.
+ rewrite_for s3.
+ rewrite_for s4.
+ apply ascii32_not_O in H0; [ contradiction |].
+ split; [ simpl; omega |].
+ inversion H8.
+ assumption.
+
+ rewrite_for obj2.
+ inversion H8.
+ inversion H9.
+ assert (y = y0).
+  generalize prefix.
+  unfold Prefix.
+  intro Hprefix.
+  apply (Hprefix x _ x0 _ ys ys0); auto.
+
+  rewrite_for y0.
+  apply H2 with (obj2:=x0) in H1; auto.
+  apply app_same in H16.
+  apply H4 with (obj2:=(Array32 xs0)) in H3; auto.
+   inversion H3.
+   rewrite H1.
+   reflexivity.
+
+   rewrite H17 in H0.
+   simpl in H0.
+   apply ascii32_of_nat_eq in H0; auto.
+   inversion H0.
+   rewrite <- H30 in H.
+   rewrite <- H15 in H.
+   inversion H.
+   rewrite_for t0.
+   rewrite_for t5.
+   rewrite_for t6.
+   rewrite_for t7.
+   rewrite_for ys.
+   assumption.
+Qed.
 
 Hint Resolve
   soundness_true soundness_false
