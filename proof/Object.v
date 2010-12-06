@@ -39,6 +39,16 @@ Inductive Valid : object -> Prop :=
 | VNFixNum : forall n,
   (* 負の数を導入したくないので、補数表現を使う *)
   223 < nat_of_ascii8 n /\ nat_of_ascii8 n < 256 -> Valid (NFixnum n)
+| VUint8  : forall c, Valid (Uint8 c)
+| VUint16 : forall c, Valid (Uint16 c)
+| VUint32 : forall c, Valid (Uint32 c)
+| VUint64 : forall c, Valid (Uint64 c)
+| VInt8   : forall c, Valid (Int8 c)
+| VInt16  : forall c, Valid (Int16 c)
+| VInt32  : forall c, Valid (Int32 c)
+| VInt64  : forall c, Valid (Int64 c)
+| VFloat  : forall c, Valid (Float c)
+| VDouble : forall c, Valid (Double c)
 | VFixRaw : forall xs,
   length xs < pow 5 -> Valid (FixRaw xs)
 | VRaw16 : forall xs,
