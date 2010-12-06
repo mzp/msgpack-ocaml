@@ -307,10 +307,16 @@ inversion H6.
   inversion Hs'2.
   reflexivity.
 Qed.*)
-*)
 
 Hint Resolve
-  soundness_nil soundness_true soundness_false
+  soundness_true soundness_false
+  soundness_nil soundness_pfixnum soundness_nfixnum
+  soundness_uint8 soundness_uint16 soundness_uint32 soundness_uint64
+  soundness_int8  soundness_int16  soundness_int32  soundness_int64
+  soundness_float soundness_double
+  soundness_raw16 soundness_raw32
+  soundness_fixarray_nil soundness_array16_nil soundness_array32_nil
+  soundness_fixmap_nil soundness_map16_nil soundness_map32_nil
   : soundness.
 
 Lemma soundness_intro: forall obj x,
@@ -330,4 +336,5 @@ apply soundness_intro.
 intro.
 pattern obj1,x.
 apply Serialized_ind; intros; auto with soundness.
+ apply soundness_fixraw with (b6:=b6) (b7:=b7) (b8:=b8); auto.
 Admitted.
