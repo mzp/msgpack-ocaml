@@ -356,6 +356,125 @@ inversion H7.
    assumption.
 Qed.
 
+Lemma soundness_map16_cons: forall x1 x2 xs y1 y2 ys s1 s2 t1 t2,
+  (t1, t2) = ascii16_of_nat (length xs) ->
+  (s1, s2) = ascii16_of_nat (length ((x1, x2) :: xs)) ->
+  Serialized x1 y1 ->
+  Soundness x1 y1 ->
+  Serialized x2 y2 ->
+  Soundness x2 y2 ->
+  Serialized (Map16 xs) ("222" :: t1 :: t2 :: ys) ->
+  Soundness (Map16 xs) ("222" :: t1 :: t2 :: ys) ->
+  Soundness (Map16 ((x1, x2) :: xs)) ("222" :: s1 :: s2 :: y1 ++ y2 ++ ys).
+Proof.
+unfold Soundness.
+intros.
+inversion H8.
+ rewrite_for s1.
+ rewrite_for s2.
+ apply ascii16_not_O in H0; [ contradiction |].
+ split; [ simpl; omega |].
+ inversion H9.
+ assumption.
+
+ rewrite_for obj2.
+ inversion H9.
+ inversion H10.
+ generalize prefix.
+ unfold Prefix.
+ intro Hprefix.
+ assert (y1 = y0).
+  apply (Hprefix x1 _ x0 _ (y2 ++ ys) (y3 ++ ys0)); auto.
+
+  rewrite_for y0.
+  apply app_same in H13.
+  assert (y2 = y3).
+  apply (Hprefix x2 _ x3 _ ys ys0); auto.
+
+  rewrite_for y3.
+
+  apply H2 with (obj2:=x0) in H1; auto.
+  apply H4 with (obj2:=x3) in H3; auto.
+  apply H6 with (obj2:=(Map16 xs0)) in H5; auto.
+   inversion H5.
+   rewrite H1, H3.
+   reflexivity.
+
+   rewrite H15 in H0.
+   simpl in H0.
+   apply ascii16_of_nat_eq in H0; auto.
+   inversion H0.
+   rewrite <- H34 in H.
+   rewrite <- H14 in H.
+   inversion H.
+   rewrite_for t0.
+   rewrite_for t3.
+   apply app_same in H13.
+   rewrite_for ys.
+   assumption.
+Qed.
+
+Lemma prefix_map32_cons : forall x1 x2 xs y1 y2 ys s1 s2 s3 s4 t1 t2 t3 t4,
+  (t1, t2, (t3, t4)) = ascii32_of_nat (length xs) ->
+  (s1, s2, (s3, s4)) = ascii32_of_nat (length ((x1, x2) :: xs)) ->
+  Serialized x1 y1 ->
+  Soundness x1 y1 ->
+  Serialized x2 y2 ->
+  Soundness x2 y2 ->
+  Serialized (Map32 xs) ("223" :: t1 :: t2 :: t3 :: t4 :: ys) ->
+  Soundness (Map32 xs) ("223" :: t1 :: t2 :: t3 :: t4 :: ys) ->
+  Soundness (Map32 ((x1, x2) :: xs)) ("223" :: s1 :: s2 :: s3 :: s4 :: y1 ++ y2 ++ ys).
+Proof.
+unfold Soundness.
+intros.
+inversion H8.
+ rewrite_for s1.
+ rewrite_for s2.
+ rewrite_for s3.
+ rewrite_for s4.
+ apply ascii32_not_O in H0; [ contradiction |].
+ split; [ simpl; omega |].
+ inversion H9.
+ assumption.
+
+ rewrite_for obj2.
+ inversion H9.
+ inversion H10.
+ generalize prefix.
+ unfold Prefix.
+ intro Hprefix.
+ assert (y1 = y0).
+  apply (Hprefix x1 _ x0 _ (y2 ++ ys) (y3 ++ ys0)); auto.
+
+  rewrite_for y0.
+  apply app_same in H15.
+  assert (y2 = y3).
+  apply (Hprefix x2 _ x3 _ ys ys0); auto.
+
+  rewrite_for y3.
+  apply H2 with (obj2:=x0) in H1; auto.
+  apply H4 with (obj2:=x3) in H3; auto.
+  apply H6 with (obj2:=(Map32 xs0)) in H5; auto.
+   inversion H5.
+   rewrite H1, H3.
+   reflexivity.
+
+   rewrite H18 in H0.
+   simpl in H0.
+   apply ascii32_of_nat_eq in H0; auto.
+   inversion H0.
+   rewrite <- H36 in H.
+   rewrite <- H17 in H.
+   inversion H.
+   rewrite_for t0.
+   rewrite_for t5.
+   rewrite_for t6.
+   rewrite_for t7.
+   apply app_same in H15.
+   rewrite_for ys.
+   assumption.
+Qed.
+
 Hint Resolve
   soundness_true soundness_false
   soundness_nil soundness_pfixnum soundness_nfixnum
