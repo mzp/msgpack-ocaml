@@ -147,6 +147,28 @@ intros obj2 Hs1 Hs2 V1 V2.
 inversion Hs2.
 assert (c = c0); [| rewrite_for c ]; auto with ascii.
 Qed.
+
+Lemma soundness_fixraw : forall cs b1 b2 b3 b4 b5 b6 b7 b8,
+  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length cs) ->
+  Soundness (FixRaw cs) ((Ascii b1 b2 b3 b4 b5 true false true)::cs).
+Proof.
+straightfoward.
+Qed.
+
+Lemma soundness_raw16: forall cs s1 s2,
+  (s1,s2) =  ascii16_of_nat (length cs) ->
+  Soundness (Raw16 cs) ("218"::s1::s2::cs).
+Proof.
+straightfoward.
+Qed.
+
+Lemma soundness_raw32 : forall cs s1 s2 s3 s4,
+  ((s1,s2),(s3,s4)) =  ascii32_of_nat (length cs) ->
+  Soundness (Raw32 cs) ("219"::s1::s2::s3::s4::cs).
+Proof.
+straightfoward.
+Qed.
+
 (*Lemma soundness_array16_nil :
   Serialized (Array16 []) ["220"; "000"; "000"] ->
   Soundness (Array16 []) ["220"; "000"; "000"].
