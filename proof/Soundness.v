@@ -9,6 +9,7 @@ Definition Soundness obj1 x : Prop := forall obj2,
   obj1 = obj2.
 
 Ltac straightfoward :=
+  intros;
   unfold Soundness;
   intros obj2 Hs1 Hs2 V1 V2;
   inversion Hs2;
@@ -32,6 +33,100 @@ Proof.
 straightfoward.
 Qed.
 
+Lemma soundness_pfixnum: forall x1 x2 x3 x4 x5 x6 x7,
+  Soundness (PFixnum   (Ascii x1 x2 x3 x4 x5 x6 x7 false))
+            [Ascii x1 x2 x3 x4 x5 x6 x7 false].
+Proof.
+straightfoward.
+Qed.
+
+Lemma soundness_nfixnum: forall x1 x2 x3 x4 x5,
+  Soundness (NFixnum   (Ascii x1 x2 x3 x4 x5 true true true))
+            [Ascii x1 x2 x3 x4 x5 true true true].
+Proof.
+straightfoward.
+Qed.
+
+Lemma soundness_uint8 : forall c,
+  Soundness (Uint8 c) ("204"::list_of_ascii8 c).
+Proof.
+intros.
+unfold Soundness.
+intros obj2 Hs1 Hs2 V1 V2.
+inversion Hs2.
+rewrite_for obj2.
+auto.
+Qed.
+
+Lemma soundness_uint16 : forall c,
+  Soundness (Uint16 c) ("205"::list_of_ascii16 c).
+Proof.
+intros.
+unfold Soundness.
+intros obj2 Hs1 Hs2 V1 V2.
+inversion Hs2.
+assert (c = c0); [| rewrite_for c ]; auto with ascii.
+Qed.
+
+Lemma soundness_uint32 : forall c,
+  Soundness (Uint32 c) ("206"::list_of_ascii32 c).
+Proof.
+intros.
+unfold Soundness.
+intros obj2 Hs1 Hs2 V1 V2.
+inversion Hs2.
+assert (c = c0); [| rewrite_for c ]; auto with ascii.
+Qed.
+
+Lemma soundness_uint64 : forall c,
+  Soundness (Uint64 c) ("207"::list_of_ascii64 c).
+Proof.
+intros.
+unfold Soundness.
+intros obj2 Hs1 Hs2 V1 V2.
+inversion Hs2.
+assert (c = c0); [| rewrite_for c ]; auto with ascii.
+Qed.
+
+Lemma soundness_int8 : forall c,
+  Soundness (Int8 c) ("208"::list_of_ascii8 c).
+Proof.
+intros.
+unfold Soundness.
+intros obj2 Hs1 Hs2 V1 V2.
+inversion Hs2.
+assert (c = c0); [| rewrite_for c ]; auto with ascii.
+Qed.
+
+Lemma soundness_int16 : forall c,
+  Soundness (Int16 c) ("209"::list_of_ascii16 c).
+Proof.
+intros.
+unfold Soundness.
+intros obj2 Hs1 Hs2 V1 V2.
+inversion Hs2.
+assert (c = c0); [| rewrite_for c ]; auto with ascii.
+Qed.
+
+Lemma soundness_int32 : forall c,
+  Soundness (Int32 c) ("210"::list_of_ascii32 c).
+Proof.
+intros.
+unfold Soundness.
+intros obj2 Hs1 Hs2 V1 V2.
+inversion Hs2.
+assert (c = c0); [| rewrite_for c ]; auto with ascii.
+Qed.
+
+Lemma soundness_int64 : forall c,
+  Soundness (Int64 c) ("211"::list_of_ascii64 c).
+Proof.
+intros.
+unfold Soundness.
+intros obj2 Hs1 Hs2 V1 V2.
+inversion Hs2.
+assert (c = c0); [| rewrite_for c ]; auto with ascii.
+Qed.
 
 (*Lemma soundness_array16_nil :
   Serialized (Array16 []) ["220"; "000"; "000"] ->

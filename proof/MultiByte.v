@@ -317,4 +317,6 @@ do 32 (apply Lt.lt_S_n in H).
 inversion H.
 Qed.
 
-Hint Resolve ascii16_length ascii32_length ascii64_length : ascii.
+Hint Resolve ascii16_length ascii32_length ascii64_length
+  list_of_ascii8_eq list_of_ascii16_eq list_of_ascii32_eq list_of_ascii64_eq
+  : ascii.
