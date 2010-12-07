@@ -87,27 +87,50 @@ Fixpoint serialize (obj : object) : list ascii8 :=
       end
   end.
 
-Theorem serialize_correct : forall obj xs,
+Definition Correct obj xs :=
   Serialized obj xs ->
   serialize obj = xs.
-Admitted.
-(*Proof.
-intros.
-generalize H.
-pattern obj,xs.
-apply Serialized_ind; auto; intros; simpl.
- rewrite <- ascii16_of_nat_O.
- reflexivity.
 
- simpl in H1.
- rewrite <- H1.
- apply H3 in H2.
- rewrite H2.
- apply H5 in H4.
- simpl in H4.
- rewrite <- H0 in *.
- inversion H4.
- reflexivity.
+Ltac straitfoward :=
+  unfold Correct;
+  intros;
+  simpl;
+  reflexivity.
+
+Lemma correct_nil:
+  Correct Nil ["192"].
+Proof.
+straitfoward.
 Qed.
 
-*)
+Lemma correct_false:
+  Correct (Bool false) ["194"].
+Proof.
+straitfoward.
+Qed.
+
+Lemma correct_true:
+  Correct (Bool true) ["195"].
+Proof.
+straitfoward.
+Qed.
+
+Lemma correct_intro : forall obj xs,
+  (Serialized obj xs -> Correct obj xs) ->
+  Correct obj xs.
+Proof.
+unfold Correct.
+intros.
+apply H in H0; auto.
+Qed.
+
+Hint Resolve correct_nil correct_false correct_true : correct.
+
+Theorem serialize_correct : forall obj xs,
+  Correct obj xs.
+Proof.
+intros.
+apply correct_intro.
+pattern obj,xs.
+apply Serialized_ind; auto with correct.
+Admitted.
