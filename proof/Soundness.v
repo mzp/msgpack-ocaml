@@ -605,7 +605,7 @@ intros.
 apply H in H1; auto.
 Qed.
 
-Lemma soundness : forall obj1 x,
+Theorem soundness : forall obj1 x,
   Soundness obj1 x.
 Proof.
 intros.
