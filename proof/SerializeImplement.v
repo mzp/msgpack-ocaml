@@ -67,7 +67,7 @@ Fixpoint serialize (obj : object) : list ascii8 :=
       in
       match ascii8_of_nat @@ length xs with
         | Ascii b1 b2 b3 b4 _ _ _ _ =>
-          (Ascii b1 b2 b3 b4 false false false false)::ys
+          (Ascii b1 b2 b3 b4 false false false true)::ys
       end
     | Map16 xs =>
       let ys :=
@@ -76,7 +76,7 @@ Fixpoint serialize (obj : object) : list ascii8 :=
       let (s1, s2) :=
         ascii16_of_nat (length  xs)
       in
-        "222"::ys
+        "222"::s1::s2::ys
     | Map32 xs =>
       let ys :=
         flat_map (fun p => serialize (fst p) ++ serialize (snd p)) xs
