@@ -274,6 +274,18 @@ rewrite <- ascii8_of_nat_O.
 reflexivity.
 Qed.
 
+Lemma ascii32_of_nat_O:
+  (("000", "000"),("000","000")) = ascii32_of_nat 0.
+Proof.
+unfold ascii32_of_nat.
+destruct divmod.
+apply divmod_O_pow in e.
+decompose [and] e.
+rewrite H, H0.
+rewrite <- ascii16_of_nat_O.
+reflexivity.
+Qed.
+
 (* lengthが等しいことの証明 *)
 Lemma ascii8_length : forall c1 c2,
   length (list_of_ascii8 c1) = length (list_of_ascii8 c2).
