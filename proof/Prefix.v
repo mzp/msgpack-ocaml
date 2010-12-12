@@ -160,8 +160,8 @@ induction xs; induction ys; simpl; intros; auto.
  apply (IHxs _ zs ws); auto.
 Qed.
 
-Lemma prefix_fixraw : forall cs b1 b2 b3 b4 b5 b6 b7 b8,
-  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length cs) ->
+Lemma prefix_fixraw : forall cs b1 b2 b3 b4 b5,
+  Ascii b1 b2 b3 b4 b5 false false false = ascii8_of_nat (length cs) ->
   Prefix (FixRaw cs) ((Ascii b1 b2 b3 b4 b5 true false true)::cs).
 Proof.
 unfold Prefix.
@@ -176,11 +176,6 @@ apply (app_length_eq _ _ _ xs ys); auto.
 rewrite <- (nat_ascii8_embedding (length cs)),
         <- (nat_ascii8_embedding (length cs0)).
  rewrite <- H, <- H8.
- apply ascii5 in H; auto.
- decompose [and] H.
- apply ascii5 in H8; auto.
- decompose [and] H8.
- rewrite H16,H17,H18,H19,H21,H22.
  reflexivity.
 
  transitivity (pow 5); auto with pow.
@@ -669,7 +664,7 @@ apply prefix_intro.
 intro.
 pattern obj1,x.
 apply Serialized_ind; intros; auto with prefix.
- apply (prefix_fixraw _ b1 b2 b3 b4 b5 b6 b7 b8); auto.
+ apply prefix_fixraw; auto.
  apply prefix_fixarray_cons with (b1:=b1) (b2:=b2) (b3:=b3) (b4:=b4); auto.
  apply prefix_array16_cons with (t1:=t1) (t2:=t2); auto.
  apply prefix_array32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.

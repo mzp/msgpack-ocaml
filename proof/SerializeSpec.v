@@ -37,8 +37,8 @@ Inductive Serialized : object -> list ascii8 -> Prop :=
   Serialized (Float c) ("202"::list_of_ascii32 c)
 | SDouble : forall c,
   Serialized (Double c) ("203"::list_of_ascii64 c)
-| SFixRaw : forall cs b1 b2 b3 b4 b5 b6 b7 b8,
-  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length cs) ->
+| SFixRaw : forall cs b1 b2 b3 b4 b5,
+  Ascii b1 b2 b3 b4 b5 false false false = ascii8_of_nat (length cs) ->
   Serialized (FixRaw cs) ((Ascii b1 b2 b3 b4 b5 true false true)::cs)
 | SRaw16 : forall cs s1 s2,
   (s1,s2) =  ascii16_of_nat (length cs) ->

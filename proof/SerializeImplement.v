@@ -189,8 +189,8 @@ Proof.
 straitfoward.
 Qed.
 
-Lemma correct_fixraw : forall cs b1 b2 b3 b4 b5 b6 b7 b8,
-  Ascii b1 b2 b3 b4 b5 b6 b7 b8 = ascii8_of_nat (length cs) ->
+Lemma correct_fixraw : forall cs b1 b2 b3 b4 b5,
+  Ascii b1 b2 b3 b4 b5 false false false = ascii8_of_nat (length cs) ->
   Correct (FixRaw cs) ((Ascii b1 b2 b3 b4 b5 true false true)::cs).
 Proof.
 unfold Correct.
@@ -455,7 +455,7 @@ apply correct_intro.
 intro.
 pattern obj,xs.
 apply Serialized_ind; intros; auto with correct.
- apply correct_fixraw  with (b6:=b6) (b7:=b7) (b8:=b8); auto.
+ apply correct_fixraw; auto.
  apply correct_fixarray_cons with (b1:=b1) (b2:=b2) (b3:=b3) (b4:=b4); auto.
  apply correct_array16_cons with (t1:=t1) (t2:=t2); auto.
  apply correct_array32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
