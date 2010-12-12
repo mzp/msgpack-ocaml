@@ -136,3 +136,11 @@ induction xs; intros; simpl in *.
    rewrite H3.
    reflexivity.
 Qed.
+
+Fixpoint pairwise { A } ( xs : list A ) :=
+  match xs with
+    | [] => []
+    | [x] => []
+    | k :: v :: ys =>
+      (k, v) :: pairwise ys
+  end.
