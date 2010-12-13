@@ -71,21 +71,24 @@ Inductive SerializedList : list object -> list ascii8 -> Prop :=
 | SLFixMap : forall os n b1 b2 b3 b4 xs ys bs,
   SerializedList os bs ->
   (xs,ys) = split_at (2 * n) os ->
+  2 * n = List.length xs ->
   n < pow 4 ->
   (Ascii b1 b2 b3 b4 false false false false) = ascii8_of_nat n ->
-  SerializedList ((FixMap (pairwise xs)) :: ys) ((Ascii b1 b2 b3 b4 false false false true) :: bs)
+  SerializedList ((FixMap (pair xs)) :: ys) ((Ascii b1 b2 b3 b4 false false false true) :: bs)
 | SLMap16 : forall os n xs ys bs s1 s2,
   SerializedList os bs ->
   (xs,ys) = split_at (2 * n) os ->
+  2 * n = List.length xs ->
   n < pow 16 ->
   (s1,s2) = ascii16_of_nat n ->
-  SerializedList ((Map16 (pairwise xs))::ys) ("222" :: s1 :: s2 :: bs)
+  SerializedList ((Map16 (pair xs))::ys) ("222" :: s1 :: s2 :: bs)
 | SLMap32 : forall os n xs ys bs s1 s2 s3 s4,
   SerializedList os bs ->
   (xs,ys) = split_at (2 * n) os ->
+  2 * n = List.length xs ->
   n < pow 32 ->
   ((s1,s2),(s3,s4)) = ascii32_of_nat n ->
-  SerializedList ((Map32 (pairwise xs))::ys) ("223" :: s1 :: s2 :: s3 :: s4 :: bs).
+  SerializedList ((Map32 (pair xs))::ys) ("223" :: s1 :: s2 :: s3 :: s4 :: bs).
 
 Lemma app_cons: forall A (xs ys zs : list A) x,
   x :: (xs ++ ys) ++ zs = x :: (xs ++ ys ++ zs).
@@ -352,8 +355,6 @@ apply (SLArray32 (x::(xs++os)) (length (x::xs))); auto.
  apply split_at_length.
 Qed.
 
-Definition unpair {A} (xs : list (A * A)) :=
-  flat_map (fun x => [ fst x; snd x]) xs.
 
 Lemma soundness_fixmap_cons: forall x1 x2 xs y1 y2 ys b1 b2 b3 b4 b5 b6 b7 b8,
   Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat (length xs) ->
@@ -369,65 +370,22 @@ intros.
 simpl.
 rewrite app_cons.
 rewrite <- app_assoc.
-replace ((x1, x2) :: xs) with (pairwise ((unpair ((x1,x2)::xs)))).
+rewrite <- (pair_unpair _ ( (x1, x2) :: xs )).
+inversion H8.
 apply (SLFixMap (x1::x2::unpair xs++os)  (length ((x1,x2)::xs))); auto.
+ apply (H2 ( x2 :: unpair xs ++ os ) ( y2 ++ ys ++ bs' )) in H1; auto.
+ apply (H4 ( unpair xs ++ os) ( ys ++ bs')) in H3; auto.
+ apply (H6 os bs') in H5; auto.
+ inversion H5.
+ rewrite (unpair_pair _ n); auto.
+  apply split_at_soundness in H25.
+  rewrite <- H25.
+  assumption...
 
-(*
-SLFixMap
-     : forall (os : list object) (n : nat) (b1 b2 b3 b4 : bool)
-         (xs ys : list object) (bs : list ascii8),
-       SerializedList os bs ->
-       (xs, ys) = split_at (2 * n) os ->
-       n < pow 4 ->
-       Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat n ->
-       SerializedList (FixMap (pairwise xs) :: ys)
-         (Ascii b1 b2 b3 b4 false false false true :: bs)
-*)
+ apply unpair_split_at...
 
- apply (H2 (xs++os) (ys++bs')) in H1; auto.
- apply (H4 os bs') in H3; auto.
- inversion H3.
- apply split_at_soundness in H21.
- rewrite H21 in *.
- assumption.
-
- apply split_at_length.
-intros.
-simpl in *.
-rewrite_for (ascii32_of_nat (S (length xs))).
-apply H2 in H1; auto.
-apply H4 in H3; auto.
-rewrite_for (ascii32_of_nat (length xs)).
-rewrite_for y.
-inversion H3.
-reflexivity.
-Qed.
-unfold Soundness.
-intros.
-simpl in *.
-unfold atat in *.
-rewrite_for (ascii32_of_nat (S (length xs))).
-apply H2 in H1; auto.
-apply H4 in H3; auto.
-rewrite_for (ascii32_of_nat (length xs)).
-rewrite_for y.
-inversion H3.
-reflexivity.
-Qed.
-unfold Soundness.
-intros.
-simpl in *.
-unfold atat in *.
-rewrite_for (ascii8_of_nat (S (length xs))).
-apply H2 in H1.
-apply H4 in H3.
-apply H6 in H5.
-rewrite_for (ascii8_of_nat (length xs)).
-rewrite_for y1.
-rewrite_for y2.
-inversion H5.
-rewrite <- app_assoc.
-reflexivity.
+ rewrite unpair_length.
+ reflexivity...
 Qed.
 
 Lemma soundness_map16_cons: forall x1 x2 xs y1 y2 ys s1 s2 t1 t2,
@@ -443,17 +401,25 @@ Lemma soundness_map16_cons: forall x1 x2 xs y1 y2 ys s1 s2 t1 t2,
 Proof.
 unfold Soundness.
 intros.
-simpl in *.
-rewrite_for (ascii16_of_nat (S (length xs))).
-apply H2 in H1.
-apply H4 in H3.
-apply H6 in H5.
-rewrite_for (ascii16_of_nat (length xs)).
-rewrite_for y1.
-rewrite_for y2.
-inversion H5.
+simpl.
+rewrite app_cons.
 rewrite <- app_assoc.
-reflexivity.
+rewrite <- (pair_unpair _ ( (x1, x2) :: xs )).
+inversion H8.
+apply (SLMap16 (x1::x2::unpair xs++os)  (length ((x1,x2)::xs))); auto.
+ apply (H2 ( x2 :: unpair xs ++ os ) ( y2 ++ ys ++ bs' )) in H1; auto.
+ apply (H4 ( unpair xs ++ os) ( ys ++ bs')) in H3; auto.
+ apply (H6 os bs') in H5; auto.
+ inversion H5.
+ rewrite (unpair_pair _ n); auto.
+ apply split_at_soundness in H23.
+ rewrite <- H23.
+ assumption.
+
+ apply unpair_split_at.
+
+ rewrite unpair_length.
+ auto.
 Qed.
 
 Lemma soundness_map32_cons : forall x1 x2 xs y1 y2 ys s1 s2 s3 s4 t1 t2 t3 t4,
@@ -469,19 +435,26 @@ Lemma soundness_map32_cons : forall x1 x2 xs y1 y2 ys s1 s2 s3 s4 t1 t2 t3 t4,
 Proof.
 unfold Soundness.
 intros.
-simpl in *.
-unfold atat in *.
-rewrite_for (ascii32_of_nat (S (length xs))).
-apply H2 in H1.
-apply H4 in H3.
-apply H6 in H5.
-rewrite_for (ascii32_of_nat (length xs)).
-rewrite_for y1.
-rewrite_for y2.
-inversion H5.
+simpl.
+rewrite app_cons.
 rewrite <- app_assoc.
-reflexivity.
-Qed.*)
+rewrite <- (pair_unpair _ ( (x1, x2) :: xs )).
+inversion H8.
+apply (SLMap32 (x1::x2::unpair xs++os)  (length ((x1,x2)::xs))); auto.
+ apply (H2 ( x2 :: unpair xs ++ os ) ( y2 ++ ys ++ bs' )) in H1; auto.
+ apply (H4 ( unpair xs ++ os) ( ys ++ bs')) in H3; auto.
+ apply (H6 os bs') in H5; auto.
+ inversion H5.
+ rewrite (unpair_pair _ n); auto.
+ apply split_at_soundness in H25.
+ rewrite <- H25.
+ assumption.
+
+ apply unpair_split_at.
+
+ rewrite unpair_length.
+ reflexivity.
+Qed.
 
 Lemma soundness_intro : forall obj xs,
   (Serialized obj xs -> Soundness obj xs) ->
@@ -523,8 +496,23 @@ apply Serialized_ind; intros; auto with soundness.
  apply soundness_map32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
 Qed.
 
-Lemma sl_soundness: forall x xs y ys,
-  Serialized x y ->
-  Valid x ->
-  SerializedList xs ys ->
-  SerializedList (x :: xs) (y ++ ys).
+Lemma sl_soundness: forall o os bs bs',
+  Serialized o bs ->
+  Valid o ->
+  SerializedList os bs' ->
+  SerializedList (o :: os) (bs ++ bs').
+Proof.
+intros.
+apply soundness_intro; auto.
+intro.
+pattern o, bs.
+apply Serialized_ind; intros; auto with soundness.
+ apply soundness_fixraw; auto.
+ apply soundness_fixarray_cons with (b1:=b1) (b2:=b2) (b3:=b3) (b4:=b4); auto.
+ apply soundness_array16_cons with (t1:=t1) (t2:=t2); auto.
+ apply soundness_array32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
+ apply soundness_fixmap_cons with (b1:=b1) (b2:=b2) (b3:=b3) (b4:=b4); auto.
+ apply soundness_map16_cons with (t1:=t1) (t2:=t2); auto.
+ apply soundness_map32_cons with (t1:=t1) (t2:=t2) (t3:=t3) (t4:=t4); auto.
+Qed.
+

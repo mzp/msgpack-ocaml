@@ -58,19 +58,19 @@ Fixpoint deserialize (xs : list ascii8) :=
         nat_of_ascii8 (Ascii b1 b2 b3 b4 false false false false) in
       let (zs, ws) :=
         split_at (2 * n) @@ deserialize ys in
-        FixMap (pairwise zs) :: ws
+        FixMap (pair zs) :: ws
     | "222" :: s1 :: s2 :: ys =>
       let n :=
         nat_of_ascii16 (s1,s2) in
       let (zs, ws) :=
         split_at (2 * n) @@ deserialize ys in
-        Map16 (pairwise zs) :: ws
+        Map16 (pair zs) :: ws
     | "223" :: s1 :: s2 :: s3 :: s4 :: ys =>
       let n :=
         nat_of_ascii32 ((s1, s2), (s3, s4)) in
       let (zs, ws) :=
         split_at (2 * n) @@ deserialize ys in
-        Map32 (pairwise zs) :: ws
+        Map32 (pair zs) :: ws
     | _ =>
       []
   end.

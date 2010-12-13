@@ -137,10 +137,69 @@ induction xs; intros; simpl in *.
    reflexivity.
 Qed.
 
-Fixpoint pairwise { A } ( xs : list A ) :=
+Fixpoint pair { A } ( xs : list A ) :=
   match xs with
     | [] => []
     | [x] => []
     | k :: v :: ys =>
-      (k, v) :: pairwise ys
+      (k, v) :: pair ys
   end.
+
+Definition unpair {A} (xs : list (A * A)) :=
+  flat_map (fun x => [ fst x; snd x]) xs.
+
+Lemma pair_unpair : forall A ( xs : list ( A * A )),
+  pair (unpair xs) = xs.
+Proof.
+induction xs; intros; simpl; auto.
+rewrite IHxs.
+destruct a.
+simpl.
+reflexivity.
+Qed.
+
+Lemma unpair_pair : forall A n ( xs : list A),
+  List.length xs = 2 * n ->
+  unpair (pair xs) = xs.
+Proof.
+induction n; intros.
+ destruct xs; auto.
+ simpl in H.
+ discriminate.
+
+ destruct xs.
+  simpl in H.
+  discriminate...
+
+  destruct xs.
+   simpl in H.
+   assert (1 <> S (n + S (n + 0))); [ omega | contradiction ]...
+
+   replace (2 * S n) with (2 + 2 * n) in H; [| omega ].
+   simpl in *.
+   inversion H.
+   apply IHn in H1.
+   rewrite H1.
+   reflexivity.
+Qed.
+
+Lemma unpair_length : forall A ( xs : list (A * A)),
+  List.length (unpair xs) = 2 * List.length xs.
+Proof.
+induction xs; simpl; auto.
+rewrite IHxs.
+omega.
+Qed.
+
+Lemma unpair_split_at: forall A (x1 x2 : A) xs ys,
+  (unpair ((x1, x2) :: xs), ys) =
+  split_at (2 * length ((x1, x2) :: xs)) (x1 :: x2 :: unpair xs ++ ys).
+Proof.
+intros.
+replace (2 * (length ((x1,x2) :: xs))) with (length (unpair ((x1,x2)::xs))).
+ apply split_at_length.
+
+ simpl.
+ rewrite unpair_length.
+ omega.
+Qed.
