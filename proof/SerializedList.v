@@ -71,21 +71,18 @@ Inductive SerializedList : list object -> list ascii8 -> Prop :=
 | SLFixMap : forall os n b1 b2 b3 b4 xs ys bs,
   SerializedList os bs ->
   (xs,ys) = split_at (2 * n) os ->
-  2 * n = List.length xs ->
   n < pow 4 ->
   (Ascii b1 b2 b3 b4 false false false false) = ascii8_of_nat n ->
   SerializedList ((FixMap (pair xs)) :: ys) ((Ascii b1 b2 b3 b4 false false false true) :: bs)
 | SLMap16 : forall os n xs ys bs s1 s2,
   SerializedList os bs ->
   (xs,ys) = split_at (2 * n) os ->
-  2 * n = List.length xs ->
   n < pow 16 ->
   (s1,s2) = ascii16_of_nat n ->
   SerializedList ((Map16 (pair xs))::ys) ("222" :: s1 :: s2 :: bs)
 | SLMap32 : forall os n xs ys bs s1 s2 s3 s4,
   SerializedList os bs ->
   (xs,ys) = split_at (2 * n) os ->
-  2 * n = List.length xs ->
   n < pow 32 ->
   ((s1,s2),(s3,s4)) = ascii32_of_nat n ->
   SerializedList ((Map32 (pair xs))::ys) ("223" :: s1 :: s2 :: s3 :: s4 :: bs).
@@ -382,10 +379,22 @@ apply (SLFixMap (x1::x2::unpair xs++os)  (length ((x1,x2)::xs))); auto.
   rewrite <- H25.
   assumption...
 
- apply unpair_split_at...
+  apply split_at_length_lt in H25.
+  apply Lt.le_lt_or_eq in H25.
+  decompose [or] H25; auto.
+  rewrite H in H27.
+  apply ascii8_of_nat_eq in H27; auto.
+   generalize (pair_length _ xs1); intros.
+    rewrite H17, H27 in H29.
+    apply Lt.lt_not_le in H28.
+    contradiction...
 
- rewrite unpair_length.
- reflexivity...
+    transitivity (length ((x1, x2) :: xs)); auto.
+    transitivity (pow 4); [| apply pow_lt ]; auto.
+
+    transitivity (pow 4); [| apply pow_lt ]; auto.
+
+ apply unpair_split_at...
 Qed.
 
 Lemma soundness_map16_cons: forall x1 x2 xs y1 y2 ys s1 s2 t1 t2,
@@ -411,15 +420,24 @@ apply (SLMap16 (x1::x2::unpair xs++os)  (length ((x1,x2)::xs))); auto.
  apply (H4 ( unpair xs ++ os) ( ys ++ bs')) in H3; auto.
  apply (H6 os bs') in H5; auto.
  inversion H5.
- rewrite (unpair_pair _ n); auto.
- apply split_at_soundness in H23.
- rewrite <- H23.
- assumption.
+ rewrite (unpair_pair _ n).
+  apply split_at_soundness in H23.
+  rewrite <- H23.
+  assumption...
+
+  apply split_at_length_lt in H23.
+  apply Lt.le_lt_or_eq in H23.
+  decompose [or] H23; auto.
+  rewrite H in H25.
+  apply ascii16_of_nat_eq in H25; auto.
+   generalize (pair_length _ xs1); intros.
+   rewrite H17, H25 in H27.
+   apply Lt.lt_not_le in H26.
+   contradiction...
+
+   transitivity (length ((x1, x2) :: xs)); auto...
 
  apply unpair_split_at.
-
- rewrite unpair_length.
- auto.
 Qed.
 
 Lemma soundness_map32_cons : forall x1 x2 xs y1 y2 ys s1 s2 s3 s4 t1 t2 t3 t4,
@@ -446,14 +464,23 @@ apply (SLMap32 (x1::x2::unpair xs++os)  (length ((x1,x2)::xs))); auto.
  apply (H6 os bs') in H5; auto.
  inversion H5.
  rewrite (unpair_pair _ n); auto.
- apply split_at_soundness in H25.
- rewrite <- H25.
- assumption.
+  apply split_at_soundness in H25.
+  rewrite <- H25.
+  assumption...
+
+  apply split_at_length_lt in H25.
+  apply Lt.le_lt_or_eq in H25.
+  decompose [or] H25; auto.
+  rewrite H in H27.
+  apply ascii32_of_nat_eq in H27; auto.
+   generalize (pair_length _ xs1); intros.
+   rewrite H17, H27 in H29.
+   apply Lt.lt_not_le in H28.
+   contradiction...
+
+   transitivity (length ((x1, x2) :: xs)); auto...
 
  apply unpair_split_at.
-
- rewrite unpair_length.
- reflexivity.
 Qed.
 
 Lemma soundness_intro : forall obj xs,

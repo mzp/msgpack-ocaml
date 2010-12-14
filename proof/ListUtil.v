@@ -86,6 +86,38 @@ unfold split_at.
 rewrite take_length, drop_length; auto.
 Qed.
 
+Lemma take_length_lt : forall A (xs ys : list A) n,
+  ys = take n xs ->
+  List.length ys <= n.
+Proof.
+induction xs; intros.
+ rewrite H.
+ destruct n; simpl; omega...
+
+ destruct n.
+  rewrite H.
+  simpl.
+  auto...
+
+  destruct ys; [ discriminate |].
+  inversion H.
+  rewrite <- H2.
+  apply IHxs in H2.
+  simpl.
+  omega...
+Qed.
+
+Lemma split_at_length_lt : forall A (xs ys zs : list A) n,
+  (xs, ys) = split_at n zs ->
+  List.length xs <= n.
+Proof.
+intros.
+unfold split_at in *.
+inversion H.
+apply (take_length_lt _ zs).
+reflexivity.
+Qed.
+
 Lemma split_at_soundness : forall A (xs ys zs : list A) n,
   (ys,zs) = split_at n xs ->
   xs = ys ++ zs.
@@ -111,7 +143,6 @@ Lemma take_nil : forall A n,
 Proof.
 induction n; auto.
 Qed.
-
 
 Lemma take_drop_length : forall A ( xs ys : list A) n,
   take n xs = ys ->
@@ -181,6 +212,29 @@ induction n; intros.
    apply IHn in H1.
    rewrite H1.
    reflexivity.
+Qed.
+
+Lemma pair_length' : forall A n (xs : list A),
+  n = List.length (pair xs) ->
+  2 * n <= List.length xs.
+Proof.
+induction n; intros; simpl.
+ omega...
+
+ destruct xs; simpl in *; [ discriminate |].
+ destruct xs; simpl in *; [ discriminate |].
+ inversion H.
+ apply IHn in H1.
+ omega.
+Qed.
+
+
+Lemma pair_length : forall A (xs : list A),
+  2 * List.length (pair xs) <= List.length xs.
+Proof.
+intros.
+apply pair_length'.
+reflexivity.
 Qed.
 
 Lemma unpair_length : forall A ( xs : list (A * A)),
