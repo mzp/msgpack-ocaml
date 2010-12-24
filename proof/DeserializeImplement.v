@@ -35,6 +35,11 @@ Fixpoint deserialize (xs : list ascii8) :=
       Float ((c1,c2), (c3, c4)) :: deserialize ys
     | "203" :: c1 :: c2 :: c3 :: c4 :: c5 :: c6 :: c7 :: c8 :: ys =>
       Double (((c1, c2), (c3, c4)), ((c5, c6), (c7, c8))) :: deserialize ys
+    |  "218" :: s1 :: s2 :: ys =>
+      let n := nat_of_ascii16 (s1,s2) in
+      let (zs, ws) :=
+        split_at n ys in
+        Raw16 zs :: deserialize ws
     | Ascii b1 b2 b3 b4 b5 true false true :: ys =>
       let n :=
         nat_of_ascii8 (Ascii b1 b2 b3 b4 b5 false false false) in
