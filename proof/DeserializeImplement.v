@@ -1,5 +1,5 @@
 Require Import Ascii List.
-Require Import ListUtil Object MultiByte Util SerializeSpec Pow SerializedList.
+Require Import ListUtil Object MultiByte Util SerializeSpec Pow SerializedList ProofUtil.
 
 Open Scope char_scope.
 
@@ -65,9 +65,9 @@ Fixpoint deserialize (n : nat) (xs : list ascii8) {struct xs} :=
         | Ascii b1 b2 b3 b4 true false false true :: ys =>
           let n :=
             nat_of_ascii8 (Ascii b1 b2 b3 b4 false false false false) in
-            let (zs, ws) :=
-              split_at n @@ deserialize n ys in
-              FixArray zs :: ws
+          let (zs, ws) :=
+            split_at n @@ deserialize 0 ys in
+            FixArray zs :: ws
         | "220" :: s1 :: s2 :: ys =>
           let n :=
             nat_of_ascii16 (s1,s2) in
@@ -108,23 +108,387 @@ Fixpoint deserialize (n : nat) (xs : list ascii8) {struct xs} :=
       end
   end.
 
+Definition DeserializeCorrect os bs :=
+  SerializedList os bs ->
+  deserialize 0 bs = os.
+
+Lemma correct_bot :
+  DeserializeCorrect [] [].
+Proof with auto.
+unfold DeserializeCorrect...
+Qed.
+
+Lemma correct_nil : forall os bs,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect (Nil :: os) ("192"::bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H0.
+apply H in H3.
+rewrite <- H3...
+Qed.
+
+Lemma correct_false: forall os bs,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Bool false) :: os) ("194"::bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H0.
+apply H in H3.
+rewrite <- H3...
+Qed.
+
+Lemma correct_true: forall os bs,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Bool true) :: os) ("195"::bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H0.
+apply H in H3.
+rewrite <- H3...
+Qed.
+
+Lemma correct_pfixnum: forall os bs x1 x2 x3 x4 x5 x6 x7,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((PFixnum (Ascii x1 x2 x3 x4 x5 x6 x7 false))::os)
+                     ((Ascii x1 x2 x3 x4 x5 x6 x7 false)::bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H0.
+apply H in H2.
+rewrite <- H2.
+destruct x1,x2,x3,x4,x5,x6,x7; reflexivity.
+Qed.
+
+Lemma correct_nfixnum: forall os bs x1 x2 x3 x4 x5,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect
+     ((NFixnum   (Ascii x1 x2 x3 x4 x5 true true true))::os)
+     ((Ascii x1 x2 x3 x4 x5 true true true)::bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H0.
+apply H in H2.
+rewrite <- H2.
+destruct x1,x2,x3,x4,x5; reflexivity.
+Qed.
+
+Lemma correct_uint8 : forall os bs c,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Uint8 c)::os) ("204"::list_of_ascii8 c ++ bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H0.
+apply H in H2.
+rewrite <- H2...
+Qed.
+
+Lemma correct_uint16 : forall os bs c,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Uint16 c)::os) ("205"::list_of_ascii16 c ++ bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+destruct c.
+inversion H0.
+apply H in H2.
+rewrite <- H2...
+Qed.
+
+Lemma correct_uint32 : forall os bs c,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Uint32 c)::os) ("206"::list_of_ascii32 c ++ bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+destruct c.
+destruct a, a0.
+inversion H0.
+apply H in H2.
+rewrite <- H2...
+Qed.
+
+Lemma correct_uint64 : forall os bs c,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Uint64 c)::os) ("207"::list_of_ascii64 c ++ bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+destruct c.
+destruct a, a0.
+destruct a, a0, a1, a2.
+inversion H0.
+apply H in H2.
+rewrite <- H2...
+Qed.
+
+Lemma correct_int8 : forall os bs c,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Int8 c)::os) ("208"::list_of_ascii8 c ++ bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H0.
+apply H in H2.
+rewrite <- H2...
+Qed.
+
+Lemma correct_int16 : forall os bs c,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Int16 c)::os) ("209"::list_of_ascii16 c ++ bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+destruct c.
+inversion H0.
+apply H in H2.
+rewrite <- H2...
+Qed.
+
+Lemma correct_int32 : forall os bs c,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Int32 c)::os) ("210"::list_of_ascii32 c ++ bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+destruct c.
+destruct a, a0.
+inversion H0.
+apply H in H2.
+rewrite <- H2...
+Qed.
+
+Lemma correct_int64 : forall os bs c,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Int64 c)::os) ("211"::list_of_ascii64 c ++ bs).
+Proof.
+unfold DeserializeCorrect.
+intros.
+destruct c.
+destruct a, a0.
+destruct a, a0, a1, a2.
+inversion H0.
+apply H in H2.
+rewrite <- H2.
+reflexivity.
+Qed.
+
+Lemma correct_float : forall os bs c,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Float c)::os) ("202"::list_of_ascii32 c ++ bs).
+Proof.
+unfold DeserializeCorrect.
+intros.
+destruct c.
+destruct a, a0.
+inversion H0.
+apply H in H2.
+rewrite <- H2.
+reflexivity.
+Qed.
+
+Lemma correct_double : forall os bs c,
+  DeserializeCorrect os bs ->
+  DeserializeCorrect ((Double c)::os) ("203"::list_of_ascii64 c ++ bs).
+Proof.
+unfold DeserializeCorrect.
+intros.
+destruct c.
+destruct a, a0.
+destruct a, a0, a1, a2.
+inversion H0.
+apply H in H2.
+rewrite <- H2.
+reflexivity.
+Qed.
+
+Lemma correct_fixarray : forall os bs n xs ys b1 b2 b3 b4,
+  DeserializeCorrect os bs ->
+  (xs, ys) = split_at n os ->
+  n < pow 4 ->
+  Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat n ->
+  DeserializeCorrect (FixArray xs :: ys) (Ascii b1 b2 b3 b4 true false false true :: bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H3.
+assert (os = os0); [| rewrite_for os0 ].
+ apply split_at_soundness in H0.
+ apply split_at_soundness in H12.
+ rewrite H0, H12...
+apply H in H9.
+assert (n0 < pow 8).
+ transitivity (pow 4); auto.
+ apply pow_lt...
+destruct b1, b2, b3, b4;
+ (replace (deserialize 0 (_ :: bs)) with
+   (let (zs, ws) :=
+      split_at (nat_of_ascii8 (ascii8_of_nat n0)) @@ deserialize 0 bs
+    in
+      FixArray zs :: ws);
+   [ unfold atat; rewrite H9, nat_ascii8_embedding, <- H12 | rewrite <- H14])...
+Qed.
+
+Lemma correct_array16 : forall os bs n xs ys s1 s2 ,
+ DeserializeCorrect os bs ->
+ n < pow 16 ->
+ (s1, s2) = ascii16_of_nat n ->
+ (xs, ys) = split_at n os ->
+ DeserializeCorrect (Array16 xs :: ys) ("220" :: s1 :: s2 :: bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H3.
+assert (os = os0).
+ apply split_at_soundness in H2.
+ apply split_at_soundness in H10.
+ rewrite H2, H10...
+
+ rewrite_for os0.
+ apply H in H9.
+ assert ( n = nat_of_ascii16 (s1, s2)).
+  rewrite H1.
+  rewrite nat_ascii16_embedding...
+
+  simpl.
+  change (nat_of_ascii8 s1 * 256 + nat_of_ascii8 s2) with (nat_of_ascii16 (s1, s2)).
+  rewrite <- H13.
+  inversion H2.
+  rewrite <- H9...
+Qed.
+
+Lemma correct_array32: forall os bs n xs ys s1 s2 s3 s4,
+ DeserializeCorrect os bs ->
+ (xs, ys) = split_at n os ->
+ n < pow 32 ->
+ ((s1, s2), (s3, s4)) = ascii32_of_nat n ->
+ DeserializeCorrect (Array32 xs :: ys) ("221" :: s1 :: s2 :: s3 :: s4 :: bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H3.
+assert (os = os0).
+ apply split_at_soundness in H0.
+ apply split_at_soundness in H12.
+ rewrite H0, H12...
+
+ rewrite_for os0.
+ apply H in H9.
+ change (deserialize 0 ("221" :: s1 :: s2 :: s3 :: s4 :: bs)) with
+   (let (zs, ws) := split_at (nat_of_ascii32 (s1, s2, (s3, s4))) (deserialize 0 bs) in
+    Array32 zs :: ws).
+ rewrite H9, H14, nat_ascii32_embedding, <- H12...
+Qed.
+
+Lemma correct_fixmap: forall os bs n xs ys b1 b2 b3 b4,
+  DeserializeCorrect os bs ->
+  (xs, ys) = split_at (2 * n) os ->
+  length xs = 2 * n ->
+  n < pow 4 ->
+  Ascii b1 b2 b3 b4 false false false false = ascii8_of_nat n ->
+  DeserializeCorrect (FixMap (pair xs) :: ys) (Ascii b1 b2 b3 b4 false false false true :: bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H4.
+assert ( n < pow 8).
+ transitivity (pow 4); auto.
+ apply pow_lt...
+assert ( n0 < pow 8).
+ transitivity (pow 4); auto.
+ apply pow_lt...
+assert (n0 = n); [| rewrite_for n0 ].
+ rewrite H3 in H16.
+ apply ascii8_of_nat_eq in H16...
+assert (xs0 = xs); [| rewrite_for xs0 ].
+ rewrite <- (unpair_pair _ n xs), <- (unpair_pair _ n xs0); auto.
+ rewrite H5...
+assert (os0 = os); [| rewrite_for os0 ].
+ apply split_at_soundness in H0.
+ apply split_at_soundness in H13.
+ rewrite H0, H13...
+apply H in H11.
+destruct b1, b2, b3, b4;
+  (replace (deserialize 0 (_ :: bs)) with
+    (let (zs, ws) :=
+       split_at (2 * (nat_of_ascii8 (ascii8_of_nat n))) @@ deserialize 0 bs
+     in
+       FixMap (pair zs) :: ws);
+    [ unfold atat; rewrite nat_ascii8_embedding, H11, <- H13
+    | rewrite <- H16 ])...
+Qed.
+
+Lemma correct_map16: forall os bs n xs ys s1 s2,
+  DeserializeCorrect os bs ->
+  (xs, ys) = split_at (2 * n) os ->
+  length xs = 2 * n ->
+  n < pow 16 ->
+  (s1, s2) = ascii16_of_nat n ->
+  DeserializeCorrect (Map16 (pair xs) :: ys) ("222" :: s1 :: s2 :: bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H4.
+assert (n0 = n).
+ rewrite H3 in H14.
+ apply ascii16_of_nat_eq in H14...
+rewrite_for n0.
+assert (xs0 = xs).
+ rewrite <- (unpair_pair _ n xs), <- (unpair_pair _ n xs0); auto.
+ rewrite H5...
+rewrite_for xs0.
+assert (os0 = os).
+ apply split_at_soundness in H0.
+ apply split_at_soundness in H11.
+ rewrite H0, H11...
+rewrite_for os0.
+apply H in H10.
+change (deserialize 0 ("222" :: s1 :: s2 :: bs)) with
+  (let (zs, ws) := split_at (2 * nat_of_ascii16 (s1, s2)) @@ deserialize 0 bs in
+  Map16 (pair zs) :: ws).
+unfold atat.
+rewrite H10, H14, nat_ascii16_embedding, <- H11...
+Qed.
+
+Lemma correct_map32: forall os bs n xs ys s1 s2 s3 s4,
+  DeserializeCorrect os bs ->
+  (xs, ys) = split_at (2 * n) os ->
+  length xs = 2 * n ->
+  n < pow 32 ->
+  ((s1, s2), (s3, s4)) = ascii32_of_nat n ->
+  DeserializeCorrect (Map32 (pair xs) :: ys) ("223" :: s1 :: s2 :: s3 :: s4 :: bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H4.
+assert (n0 = n); [| rewrite_for n0 ].
+ rewrite H3 in H16.
+ apply ascii32_of_nat_eq in H16...
+assert (xs0 = xs); [| rewrite_for xs0 ].
+ rewrite <- (unpair_pair _ n xs), <- (unpair_pair _ n xs0); auto.
+ rewrite H5...
+assert (os0 = os); [| rewrite_for os0 ].
+ apply split_at_soundness in H0.
+ apply split_at_soundness in H13.
+ rewrite H0, H13...
+apply H in H11.
+change (deserialize 0 ("223" :: s1 :: s2 :: s3 :: s4 :: bs)) with
+  (let (zs, ws) := split_at (2 * nat_of_ascii32 ((s1, s2),(s3,s4))) @@ deserialize 0 bs in
+    Map32 (pair zs) :: ws).
+unfold atat.
+rewrite H16, H11, nat_ascii32_embedding, <- H13...
+Qed.
+
 Lemma deserialize_correct : forall os bs,
   SerializedList os bs ->
   deserialize 0 bs = os.
 Proof.
-  apply SerializedList_ind; intros.
-  Focus 18.
-  simpl.
-  change (nat_of_ascii8 s1 * 256 + nat_of_ascii8 s2) with (nat_of_ascii16 (s1,s2)).
-
-
-
-  simpl.
-  rewrite H0.
-  change (nat_of_ascii8 s1 * 256 + nat_of_ascii8 s2) with (nat_of_ascii16 (s1,s2)).
-  rewrite H3.
-  rewrite nat_ascii16_embedding; auto.
-  unfold split_at in H1.
-  inversion H1.
-  reflexivity.
-Qed.*)
+apply SerializedList_ind.
+ reflexivity.
+Admitted.
