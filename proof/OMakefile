@@ -15,6 +15,7 @@ FILES[] =
 	OCamlBase
 	Util
 	ExtractUtil
+	Main
 
 .DEFAULT: proof
 proof: $(CoqProof $(FILES))
