@@ -308,6 +308,95 @@ rewrite <- H2.
 reflexivity.
 Qed.
 
+Lemma deserialize_take_length: forall xs ys,
+  take (List.length xs) (deserialize (List.length xs) (xs ++ ys)) = List.map (fun x => FixRaw [ x ]) xs.
+Proof with auto.
+induction xs; [ reflexivity | intros ].
+simpl.
+rewrite IHxs...
+Qed.
+
+Lemma deserialize_drop_length: forall xs ys,
+  drop (List.length xs) (deserialize (List.length xs) (xs ++ ys)) = deserialize 0 ys.
+Proof with auto.
+induction xs; [ reflexivity | intros ].
+simpl.
+rewrite IHxs...
+Qed.
+
+Lemma compact_eq : forall xs,
+  compact (List.map (fun x => FixRaw [ x ]) xs) = xs.
+Proof with auto.
+induction xs; [ reflexivity | intros ].
+simpl.
+rewrite IHxs...
+Qed.
+
+Lemma correct_fixraw: forall os bs cs b1 b2 b3 b4 b5,
+ DeserializeCorrect os bs ->
+ Ascii b1 b2 b3 b4 b5 false false false = ascii8_of_nat (List.length cs) ->
+ List.length cs < pow 5 ->
+ DeserializeCorrect (FixRaw cs :: os) ((Ascii b1 b2 b3 b4 b5 true false true) :: cs ++ bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H2.
+assert (bs0 = bs); [| rewrite_for bs0 ].
+ apply app_same in H11...
+apply H in H13.
+assert (length cs < pow 8).
+ transitivity (pow 5); auto.
+ apply pow_lt...
+destruct b1,b2,b3,b4,b5;
+  ((replace (deserialize 0 _ ) with
+    (let n := nat_of_ascii8 (ascii8_of_nat (length cs)) in
+     let (zs, ws) := split_at n @@ deserialize n (cs++bs) in
+     FixRaw (compact zs) :: ws));
+  [ unfold atat, split_at;
+    rewrite nat_ascii8_embedding, deserialize_take_length, deserialize_drop_length, compact_eq, <- H13
+  | rewrite <- H7])...
+Qed.
+
+Lemma correct_raw16: forall os bs cs s1 s2,
+ DeserializeCorrect os bs ->
+ (s1, s2) = ascii16_of_nat (List.length cs) ->
+ List.length cs < pow 16 ->
+ DeserializeCorrect (Raw16 cs :: os) ("218" :: s1 :: s2 :: cs ++ bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H2.
+assert (bs0 = bs); [| rewrite_for bs0 ].
+ apply app_same in H8...
+apply H in H10.
+change (deserialize 0 _ ) with
+  (let (zs, ws) :=
+    split_at (nat_of_ascii16 (s1,s2)) @@ deserialize (nat_of_ascii16 (s1,s2)) (cs++bs) in
+    Raw16 (compact zs) :: ws).
+unfold atat, split_at.
+rewrite H7, nat_ascii16_embedding, deserialize_take_length, deserialize_drop_length, compact_eq, H10...
+Qed.
+
+Lemma correct_raw32: forall os bs cs s1 s2 s3 s4,
+  DeserializeCorrect os bs ->
+  ((s1, s2), (s3, s4)) = ascii32_of_nat (List.length cs) ->
+  List.length cs < pow 32 ->
+  DeserializeCorrect (Raw32 cs :: os) ("219" :: s1 :: s2 :: s3 :: s4 :: cs ++ bs).
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+inversion H2.
+assert (bs0 = bs); [| rewrite_for bs0 ].
+ apply app_same in H10...
+apply H in H12.
+change (deserialize 0 _ ) with
+  (let (zs, ws) :=
+    split_at (nat_of_ascii32 ((s1,s2),(s3,s4))) @@ deserialize (nat_of_ascii32 ((s1,s2),(s3,s4))) (cs++bs) in
+    Raw32 (compact zs) :: ws).
+unfold atat, split_at.
+rewrite H7, nat_ascii32_embedding, deserialize_take_length, deserialize_drop_length, compact_eq, H12...
+Qed.
+
 Lemma correct_fixarray : forall os bs n xs ys b1 b2 b3 b4,
   DeserializeCorrect os bs ->
   (xs, ys) = split_at n os ->
@@ -485,10 +574,57 @@ unfold atat.
 rewrite H16, H11, nat_ascii32_embedding, <- H13...
 Qed.
 
-Lemma deserialize_correct : forall os bs,
-  SerializedList os bs ->
-  deserialize 0 bs = os.
+Lemma correct_intro : forall os bs,
+  (SerializedList os bs -> DeserializeCorrect os bs) ->
+  DeserializeCorrect os bs.
+Proof with auto.
+unfold DeserializeCorrect.
+intros.
+apply H in H0...
+Qed.
+
+Theorem deserialize_correct : forall os bs,
+  DeserializeCorrect os bs.
+Proof with auto.
+intros.
+apply correct_intro.
+intros.
+pattern os, bs.
+apply SerializedList_ind; intros; auto.
+ apply correct_bot...
+ apply correct_nil...
+ apply correct_true...
+ apply correct_false...
+ apply correct_pfixnum...
+ apply correct_nfixnum...
+ apply correct_uint8...
+ apply correct_uint16...
+ apply correct_uint32...
+ apply correct_uint64...
+ apply correct_int8...
+ apply correct_int16...
+ apply correct_int32...
+ apply correct_int64...
+ apply correct_float...
+ apply correct_double...
+ apply correct_fixraw...
+ simpl; apply correct_raw16...
+ simpl; apply correct_raw32...
+ apply correct_fixarray with (os:=os0) (n:=n)...
+ apply correct_array16 with (os:=os0) (n:=n)...
+ apply correct_array32 with (os:=os0) (n:=n)...
+ apply correct_fixmap with (os:=os0) (n:=n)...
+ apply correct_map16 with (os:=os0) (n:=n)...
+ apply correct_map32 with (os:=os0) (n:=n)...
+Qed.
+
+Lemma app_nil: forall A (xs : list A),
+  xs ++ [] = xs.
 Proof.
-apply SerializedList_ind.
+induction xs.
  reflexivity.
-Admitted.
+simpl.
+rewrite IHxs.
+reflexivity.
+Qed.
+
