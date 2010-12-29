@@ -43,12 +43,15 @@ Inductive SerializedList : list object -> list ascii8 -> Prop :=
   lift SerializedList (Double c) ("203" :: list_of_ascii64 c)
 | SLFixRaw : forall cs b1 b2 b3 b4 b5,
   Ascii b1 b2 b3 b4 b5 false false false = ascii8_of_nat (length cs) ->
+  List.length cs < pow 5 ->
   lift SerializedList (FixRaw cs) ((Ascii b1 b2 b3 b4 b5 true false true) :: cs)
 | SLRaw16 : forall cs s1 s2,
   (s1,s2) =  ascii16_of_nat (length cs) ->
+  List.length cs < pow 16 ->
   lift SerializedList (Raw16 cs) ("218" :: s1 :: s2 :: cs)
 | SLRaw32 : forall cs s1 s2 s3 s4,
   ((s1,s2),(s3,s4)) =  ascii32_of_nat (length cs) ->
+  List.length cs < pow 32 ->
    lift SerializedList (Raw32 cs) ("219" :: s1 :: s2 :: s3 :: s4 :: cs)
 | SLFixArray : forall os n b1 b2 b3 b4 xs ys bs,
   SerializedList os bs ->
@@ -208,6 +211,8 @@ Lemma soundness_fixraw : forall cs b1 b2 b3 b4 b5,
   Soundness (FixRaw cs) ((Ascii b1 b2 b3 b4 b5 true false true)::cs).
 Proof.
 straitfoward SLFixRaw.
+inversion Hv.
+assumption.
 Qed.
 
 Lemma soundness_raw16: forall cs s1 s2,
@@ -215,6 +220,8 @@ Lemma soundness_raw16: forall cs s1 s2,
   Soundness (Raw16 cs) ("218"::s1::s2::cs).
 Proof.
 straitfoward SLRaw16.
+inversion Hv.
+assumption.
 Qed.
 
 Lemma soundness_raw32 : forall cs s1 s2 s3 s4,
@@ -222,6 +229,8 @@ Lemma soundness_raw32 : forall cs s1 s2 s3 s4,
   Soundness (Raw32 cs) ("219"::s1::s2::s3::s4::cs).
 Proof.
 straitfoward SLRaw32.
+inversion Hv.
+assumption.
 Qed.
 
 Lemma soundness_fixarray_nil :
