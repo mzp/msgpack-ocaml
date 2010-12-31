@@ -7,3 +7,5 @@
 *.cm[iox]
 *.o
 *.annot
+*.opt
+*.run
