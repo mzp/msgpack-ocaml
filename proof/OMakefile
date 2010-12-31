@@ -1,5 +1,5 @@
 open CoqBuildRule
-.PHONY: all clean proof
+.PHONY: all clean
 
 FILES[] =
 	Pow
@@ -17,8 +17,10 @@ FILES[] =
 	ExtractUtil
 	Main
 
-.DEFAULT: proof
-proof: $(CoqProof $(FILES))
+.DEFAULT: all
+
+all : msgpackCore.ml msgpackCore.mli
+msgpackCore.ml msgpackCore.mli : $(CoqProof $(FILES))
 
 clean:
 	rm -rf *.vo *.glob *~ *.omc .omakedb .omakedb.lock
