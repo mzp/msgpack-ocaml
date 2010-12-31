@@ -4,3 +4,6 @@
 .omakedb.lock
 *.vo
 *.glob
+*.cm[iox]
+*.o
+*.annot

@@ -1,5 +1,8 @@
+NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
+BYTE_ENABLED = $(not $(OCAMLOPT_EXISTS))
+
 .PHONY: clean
-.SUBDIRS: proof
+.SUBDIRS: ocaml proof
 
 clean:
 	rm -rf *.vo *.glob *~ *.omc .omakedb .omakedb.lock

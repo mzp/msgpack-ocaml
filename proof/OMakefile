@@ -23,4 +23,4 @@ all : msgpackCore.ml msgpackCore.mli
 msgpackCore.ml msgpackCore.mli : $(CoqProof $(FILES))
 
 clean:
-	rm -rf *.vo *.glob *~ *.omc .omakedb .omakedb.lock
+	rm -rf *.vo *.glob *~ *.omc .omakedb .omakedb.lock *.cm[iox] *.annot *.o msgpackCore.ml msgpackCore.mli
