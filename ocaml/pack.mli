@@ -27,3 +27,6 @@ type t =
 
 val pack : t -> MsgpackCore.object0
 val unpack : MsgpackCore.object0 -> t
+
+val char_of_ascii8 : MsgpackCore.ascii -> char
+val ascii8_of_char : char -> MsgpackCore.ascii
