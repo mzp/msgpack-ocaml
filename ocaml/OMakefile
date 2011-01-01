@@ -25,13 +25,14 @@ OCAMLPACKS[] =
 	extlib
 	num
 
-OCAML_WARN_FLAGS=$`(if $(equal $<,msgpackCore.ml),-annot,-w A -warn-error A -annot) #`
+OCAML_WARN_FLAGS=$`(if $(equal $<,msgpackCore.ml),-annot,-w A -warn-error A -annot) -annot#`
 # ------------------------------
 # library
 # ------------------------------
 FILES[] =
 	pack
 	base
+	hList
 	msgpackCore
 
 msgpackCore.ml : ../proof/msgpackCore.ml
