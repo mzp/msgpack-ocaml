@@ -25,7 +25,8 @@ OCAMLPACKS[] =
 	extlib
 	num
 
-OCAML_WARN_FLAGS=$`(if $(equal $<,msgpackCore.ml),-annot,-w A -warn-error A -annot) -annot#`
+OCAML_WARN_FLAGS=$`(if $(equal $<,msgpackCore.ml),-annot,-w A -warn-error A ) #`
+OCAMLFLAGS=$(OCAML_WARN_FLAGS) -annot
 # ------------------------------
 # library
 # ------------------------------
@@ -34,6 +35,7 @@ FILES[] =
 	base
 	hList
 	msgpackCore
+	serialize
 
 msgpackCore.ml : ../proof/msgpackCore.ml
 	cp $^ $@
@@ -46,6 +48,7 @@ msgpackCore.mli : ../proof/msgpackCore.mli
 # ------------------------------
 TEST_FILES[] =
 	packTest
+	serializeTest
 
 TEST_PROGRAM = runner
 
