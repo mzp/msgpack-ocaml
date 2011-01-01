@@ -28,7 +28,7 @@ let valid = [
   ];
   "nfixnum",[
     NFixnum c255, `NFixnum ~-1;
-    NFixnum (Ascii (true,true,true,false,false,false,false,false)), `NFixnum ~-32
+    NFixnum (Ascii (false,false,false,false,false,true,true,true)), `NFixnum ~-32
   ],[
     `NFixnum 0;
     `NFixnum (~-33)
@@ -45,10 +45,10 @@ let valid = [
     Uint16 (c0,c0), `Uint16 0;
     Uint16 (c0,c1), `Uint16 1;
     Uint16 (c1,c0), `Uint16 256;
-    Uint16 (c255,c255), `Uint16 6535;
+    Uint16 (c255,c255), `Uint16 65535;
   ],[
     `Uint16 ~-1;
-    `Uint16 6536
+    `Uint16 65536
   ];
   "uint32", [
     Uint32 ((c0,c0), (c0,c0)), `Uint32 0L;
@@ -60,7 +60,7 @@ let valid = [
   "uint64", [
     Uint64 (((c0,c0), (c0,c0)),((c0,c0), (c0,c0))), `Uint64 Big_int.zero_big_int;
     Uint64 (((c0,c0), (c0,c0)),((c0,c0), (c0,c1))), `Uint64 Big_int.unit_big_int;
-    Uint64 (((c255,c255), (c255,c255)),((c255,c255), (c255,c255))), `Uint64 (Big_int.big_int_of_string "18446744073709551616")
+    Uint64 (((c255,c255), (c255,c255)),((c255,c255), (c255,c255))), `Uint64 (Big_int.big_int_of_string "18446744073709551615")
   ],[
     `Uint64 (Big_int.big_int_of_string "-1");
     `Uint64 (Big_int.big_int_of_string "18446744073709551617")
@@ -70,7 +70,7 @@ let valid = [
     Int8 c1, `Int8 1;
     Int8 c255, `Int8 (~-1)
   ],[
-    `Int8 256
+    `Int8 129
   ];
   "int16", [
     Int16 (c0,c0), `Int16 0;
@@ -78,19 +78,17 @@ let valid = [
     Int16 (c1,c0), `Int16 256;
     Int16 (c255,c255), `Int16 ~-1;
   ],[
-    `Int16 6536
+    `Int16 65536
   ];
   "int32", [
     Int32 ((c0,c0), (c0,c0)), `Int32 0l;
     Int32 ((c255,c255), (c255,c255)), `Int32 (-1l)
   ],[];
   "int64", [
-    Int64 (((c0,c0), (c0,c0)),((c0,c0), (c0,c0))), `Int64 Big_int.zero_big_int;
-    Int64 (((c0,c0), (c0,c0)),((c0,c0), (c0,c1))), `Int64 Big_int.unit_big_int;
-    Int64 (((c255,c255), (c255,c255)),((c255,c255), (c255,c255))), `Int64 (Big_int.big_int_of_string "-1")
-  ],[
-    `Int64 (Big_int.big_int_of_string "18446744073709551617")
-  ];
+    Int64 (((c0,c0), (c0,c0)),((c0,c0), (c0,c0))), `Int64 0L;
+    Int64 (((c0,c0), (c0,c0)),((c0,c0), (c0,c1))), `Int64 1L;
+    Int64 (((c255,c255), (c255,c255)),((c255,c255), (c255,c255))), `Int64 (-1L)
+  ],[];
   "float", [
     Float ((c0,c0),(c0,c0)), `Float 0.0;
     (* 0.5 = 3f_00_00_00 *)
@@ -164,9 +162,14 @@ let _ = begin "pack.ml" >::: [
     end;
   "復元のテスト" >:::
     valid +> HList.concat_map begin fun (name, ok, _) ->
-      ok +> List.map begin fun (expect, actual) ->
-	(sprintf "%sが復元できる" name) >:: (fun _ -> assert_equal actual (unpack expect))
+      ok +> List.map begin fun (actual, expect) ->
+	(sprintf "%sが復元できる" name) >:: begin fun _ ->
+	  match expect, unpack actual with
+	      `Uint64 n1, `Uint64 n2 ->
+		assert_equal ~cmp:Big_int.eq_big_int n1 n2
+	    | x, y ->
+		assert_equal x y
+	end
       end
     end;
 ] end +> run_test_tt_main
-
