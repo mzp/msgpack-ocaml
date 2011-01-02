@@ -40,3 +40,7 @@ module Serialize : sig
   (**  [MessagePack.Serialize.serialize_string obj] serialize MessagePack object [obj] to MessagePack string. *)
   val serialize_string   : t -> string
 end
+
+module Config : sig
+  val version : int * int * int
+end

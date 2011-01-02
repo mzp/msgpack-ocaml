@@ -19,8 +19,8 @@ FILES[] =
 
 .DEFAULT: all
 
-all : msgpackCore.ml msgpackCore.mli
-msgpackCore.ml msgpackCore.mli : $(CoqProof $(FILES))
-
+all: msgpackCore.ml msgpackCore.mli
+msgpackCore.ml msgpackCore.mli: $(CoqProof $(FILES))
+	echo "Proof complete"
 clean:
 	rm -rf *.vo *.glob *~ *.omc .omakedb .omakedb.lock *.cm[iox] *.annot *.o msgpackCore.ml msgpackCore.mli

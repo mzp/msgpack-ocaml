@@ -1,4 +1,4 @@
-.PHONY: all clean check doc
+.PHONY: all clean check doc install
 
 # ------------------------------
 # camlp4
@@ -36,6 +36,7 @@ FILES[] =
 	hList
 	msgpackCore
 	serialize
+	config
 
 msgpackCore.ml : ../proof/msgpackCore.ml
 	cp $^ $@
@@ -71,6 +72,9 @@ check : $(OCamlProgram $(TEST_PROGRAM), $(TEST_FILES) $(FILES))
 doc:
 	mkdir -p doc
 	ocamldoc -d doc -html msgpack.mli
+
+install:
+	ocamlfind install msgpack META msgpack.cmx msgpack.cmo
 
 clean:
 	rm -rf *.cm[iox] *.o *~ *.omc .omakedb .omakedb.lock *.cmxa *.a *.opt *.run *.annot runner
