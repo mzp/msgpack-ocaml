@@ -14,8 +14,8 @@ REQUIRE
 BUILD & INSTALL
 ------------------------------
 
- $ omake
- $ omake install
+  $ omake
+  $ omake install
 
 DOCUMENT
 ------------------------------
