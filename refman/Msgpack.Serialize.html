@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Msgpack.Pack.html">
+<link rel="Up" href="Msgpack.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Msgpack" rel="Chapter" href="Msgpack.html"><title>Msgpack.Serialize</title>
+</head>
+<body>
+<div class="navbar"><a href="Msgpack.Pack.html">Previous</a>
+&nbsp;<a href="Msgpack.html">Up</a>
+&nbsp;</div>
+<center><h1>Module <a href="type_Msgpack.Serialize.html">Msgpack.Serialize</a></h1></center>
+<br>
+<pre><span class="keyword">module</span> Serialize: <code class="code">sig</code> <a href="Msgpack.Serialize.html">..</a> <code class="code">end</code></pre>MessagePack Serializer<br>
+<hr width="100%">
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = <code class="type">[ `Array16 of <a href="Msgpack.Serialize.html#TYPEt">t</a> list<br>       | `Array32 of <a href="Msgpack.Serialize.html#TYPEt">t</a> list<br>       | `Bool of bool<br>       | `Double of float<br>       | `FixArray of <a href="Msgpack.Serialize.html#TYPEt">t</a> list<br>       | `FixMap of (<a href="Msgpack.Serialize.html#TYPEt">t</a> * <a href="Msgpack.Serialize.html#TYPEt">t</a>) list<br>       | `FixRaw of char list<br>       | `Float of float<br>       | `Int16 of int<br>       | `Int32 of int32<br>       | `Int64 of int64<br>       | `Int8 of int<br>       | `Map16 of (<a href="Msgpack.Serialize.html#TYPEt">t</a> * <a href="Msgpack.Serialize.html#TYPEt">t</a>) list<br>       | `Map32 of (<a href="Msgpack.Serialize.html#TYPEt">t</a> * <a href="Msgpack.Serialize.html#TYPEt">t</a>) list<br>       | `NFixnum of int<br>       | `Nil<br>       | `PFixnum of int<br>       | `Raw16 of char list<br>       | `Raw32 of char list<br>       | `Uint16 of int<br>       | `Uint32 of int64<br>       | `Uint64 of Big_int.big_int<br>       | `Uint8 of int ]</code> </pre>
+<div class="info">
+MesagePack object. See also <a href="http://redmine.msgpack.org/projects/msgpack/wiki/FormatSpec">MessagePack specification</a>.<br>
+</div>
+
+<pre><span id="VALdeserialize_string"><span class="keyword">val</span> deserialize_string</span> : <code class="type">string -> <a href="Msgpack.Serialize.html#TYPEt">t</a></code></pre><div class="info">
+<code class="code">MessagePack.Serialize.deserialize_string str</code> deserialize MessagePack string <code class="code">str</code> to MessagePack object.<br>
+</div>
+<pre><span id="VALserialize_string"><span class="keyword">val</span> serialize_string</span> : <code class="type"><a href="Msgpack.Serialize.html#TYPEt">t</a> -> string</code></pre><div class="info">
+<code class="code">MessagePack.Serialize.serialize_string obj</code> serialize MessagePack object <code class="code">obj</code> to MessagePack string.<br>
+</div>
+</body></html>
