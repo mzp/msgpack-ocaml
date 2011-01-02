@@ -1,4 +1,6 @@
-(** conversion MessagePack object between OCaml and Coq. *)
+(** MessagePack for OCaml *)
+
+(** Conversion MessagePack object between OCaml and Coq. *)
 module Pack : sig
   (** exception when MesagePack object is invalid form *)
   exception Not_conversion of string
@@ -6,7 +8,7 @@ end
 
 (** MessagePack Serializer *)
 module Serialize : sig
-  (** MesagePack object *)
+  (** MesagePack object. See also {{:http://redmine.msgpack.org/projects/msgpack/wiki/FormatSpec}MessagePack specification}. *)
   type t =
       [ `Bool of bool
       | `Nil
@@ -32,9 +34,9 @@ module Serialize : sig
       | `Map16 of (t * t) list
       | `Map32 of (t * t) list ]
 
-  (**  [deserialize_string str] deserialize MessagePack string [str] to MessagePack object. *)
+  (**  [MessagePack.Serialize.deserialize_string str] deserialize MessagePack string [str] to MessagePack object. *)
   val deserialize_string : string -> t
 
-  (**  [serialize_string obj] serialize MessagePack object [obj] to MessagePack string. *)
+  (**  [MessagePack.Serialize.serialize_string obj] serialize MessagePack object [obj] to MessagePack string. *)
   val serialize_string   : t -> string
 end

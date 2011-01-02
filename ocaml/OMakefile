@@ -1,4 +1,4 @@
-.PHONY: all clean check
+.PHONY: all clean check doc
 
 # ------------------------------
 # camlp4
@@ -67,6 +67,10 @@ all : $(OCamlPackage $(PROGRAM), $(FILES))
 
 check : $(OCamlProgram $(TEST_PROGRAM), $(TEST_FILES) $(FILES))
 	./$(TEST_PROGRAM)
+
+doc:
+	mkdir -p doc
+	ocamldoc -d doc -html msgpack.mli
 
 clean:
 	rm -rf *.cm[iox] *.o *~ *.omc .omakedb .omakedb.lock *.cmxa *.a *.opt *.run *.annot runner
