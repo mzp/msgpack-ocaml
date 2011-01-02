@@ -69,4 +69,4 @@ check : $(OCamlProgram $(TEST_PROGRAM), $(TEST_FILES) $(FILES))
 	./$(TEST_PROGRAM)
 
 clean:
-	rm -rf *.cm[iox] *.o *~ *.omc .omakedb .omakedb.lock *.cmxa *.a *.opt *.run *.annot
+	rm -rf *.cm[iox] *.o *~ *.omc .omakedb .omakedb.lock *.cmxa *.a *.opt *.run *.annot runner
