@@ -77,4 +77,4 @@ install:
 	ocamlfind install msgpack META msgpack.cmx msgpack.cmo
 
 clean:
-	rm -rf *.cm[iox] *.o *~ *.omc .omakedb .omakedb.lock *.cmxa *.a *.opt *.run *.annot runner
+	rm -rf *.cm[iox] *.o *~ *.omc .omakedb .omakedb.lock *.cmxa *.a *.opt *.run *.annot runner msgpackCore.*
