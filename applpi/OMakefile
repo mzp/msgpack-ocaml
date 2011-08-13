@@ -1,0 +1,49 @@
+open ../CoqBuildRule
+.PHONY: all clean
+
+FILES[] =
+        util
+        eqdep
+        listT
+        chan
+        chanlist
+        applpi
+        inj
+        inv
+        inv_dis
+        fresh
+        set
+        redseq
+        inv2
+        trans_trans2
+        cong
+        cong_tactic
+        cong_resp
+        cong_inj_dis
+        cong_trans
+        cong_trans2
+        logic
+        free_chans
+        logic_prop
+        logic_tactic
+        logic_tactic2
+        util_for_tactics
+        stable
+        datatypes_for_tactics
+        logic_extensions
+        mu
+        conf_red_com_always_tactic
+        stable_tactic
+        conf_red
+        conf_red_new_tactic
+        red_deter
+        red_nondeter
+        red_nondeter_tactic
+        libapplpi
+
+.DEFAULT: all
+
+all: $(CoqProof $(FILES))
+	echo "Proof complete"
+clean:
+	rm -rf *.vo *.glob *~ *.omc .omakedb .omakedb.lock

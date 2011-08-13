@@ -1,4 +1,4 @@
-open CoqBuildRule
+open ../CoqBuildRule
 .PHONY: all clean
 
 FILES[] =
