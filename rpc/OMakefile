@@ -1,0 +1,15 @@
+open ../CoqBuildRule
+COQDEP_FLAGS = -I ../applpi -I ../proof
+.PHONY: all clean
+
+FILES[] =
+	Example
+
+.DEFAULT: all
+
+all: $(CoqProof $(FILES))
+	echo "Proof complete"
+clean:
+	rm -rf *.vo *.glob *~ *.omc .omakedb .omakedb.lock
+
+

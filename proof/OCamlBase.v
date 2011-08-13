@@ -1,7 +1,7 @@
 Require Export String.
 Require Export List.
 Require Export ExtractUtil.
-Require Export Util.
+Require Export OCamlUtil.
 
 Open Scope string_scope.
 

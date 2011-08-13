@@ -2,7 +2,7 @@ NATIVE_ENABLED = true
 BYTE_ENABLED = true
 
 .PHONY: clean
-.SUBDIRS: ocaml proof applpi
+.SUBDIRS: ocaml proof applpi rpc
 
 clean:
 	rm -rf *.vo *.glob *~ *.omc .omakedb .omakedb.lock

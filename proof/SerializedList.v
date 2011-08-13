@@ -1,5 +1,5 @@
 Require Import Ascii List.
-Require Import ListUtil Object MultiByte Util SerializeSpec Pow.
+Require Import ListUtil Object MultiByte OCamlUtil SerializeSpec Pow.
 
 Open Scope char_scope.
 

@@ -1,8 +1,8 @@
 public.COQC   = coqc
 public.COQC_FLAGS   =
-public.COQDEP_FLAGS =
+public.COQDEP_FLAGS   =
 public.COQLIB = $(shell coqc -where)
-public.COQDEP = coqdep -w -coqlib $`(COQLIB) -I . $(COQDEP_FLAGS)
+public.COQDEP = coqdep -w -coqlib $`(COQLIB) -I . $`(COQDEP_FLAGS)
 
 public.CoqProof(files) =
 	vo=$(addsuffix .vo,$(files))
