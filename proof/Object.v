@@ -5,7 +5,7 @@ Require Import Pow MultiByte ListUtil.
 Open Scope char_scope.
 
 (** MsgPackで使うオブジェクトの定義 *)
-Inductive object :=
+Inductive object : Set :=
 | Bool (_ : bool)
 | Nil
 | PFixnum (_ : ascii8)
