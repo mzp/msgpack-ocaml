@@ -3,7 +3,9 @@ COQDEP_FLAGS = -I ../applpi -I ../proof
 .PHONY: all clean
 
 FILES[] =
-	Example
+	ServerSpec
+	ClientSpec
+	Session
 
 .DEFAULT: all
 
