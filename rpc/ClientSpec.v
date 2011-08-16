@@ -4,11 +4,11 @@ Add LoadPath "../proof".
 Require Import libapplpi.
 Require Import Session.
 
-Inductive ClientSpec : proc -> Prop :=
-| CCall   : forall Q b (ch : chan session b) c ret,
-  ClientSpecAfterCall Q -> ClientSpec ( ch << (Call c ret) >> Q)
-| CNotify : forall Q b (ch : chan session b) n,
-  ClientSpec Q -> ClientSpec ( ch << (Notify n) >> Q)
-with ClientSpecAfterCall : proc -> Prop :=
-| CRet   : forall b (ch : chan session b) f,
-  (forall ret, ClientSpec (f ret)) -> ClientSpecAfterCall (ch ?? f).
+Inductive ClientSpec : chan session true -> chan response true -> proc -> Prop :=
+| CCall   : forall P ch req res,
+  ClientSpecAfterCall ch res P -> ClientSpec ch res ( ch << (Call req res) >> P)
+| CNotify : forall P ch res n,
+  ClientSpec ch res P -> ClientSpec ch res ( ch << (Notify n) >> P)
+with ClientSpecAfterCall : chan session true -> chan response true -> proc -> Prop :=
+| CRet   : forall ch res P,
+  (forall x, ClientSpec ch res (P x)) -> ClientSpecAfterCall ch res (res ?? P).
