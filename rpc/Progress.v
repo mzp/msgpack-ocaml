@@ -5,17 +5,14 @@ Require Import libapplpi.
 Require Import Session.
 Require Import ServerSpec ClientSpec.
 
-Inductive Progress : chan response true -> form -> Prop :=
-| progress : forall res x,
-  Progress res (OUTPUTS res x ISANY).
-
-Theorem rpc_progress : forall res S C f,
+Theorem rpc_progress : forall res S C,
   (forall ch, ServerSpec ch (S ch)) ->
   (forall ch, ClientSpec ch res (C ch)) ->
-  Progress res f ->
-  (nilC # nuPl (fun c => parP (S c) (C c))) |=t (FMUSTEV (ALWAYS (STAT f))).
+  exists x : response,
+  (nilC # nuPl (fun c => parP (S c) (C c))) |=t (FMUSTEV (ALWAYS (STAT (OUTPUTS res x ISANY)))).
 Proof with auto.
-intros res S C f SS CS FS.
+intros res S C SS CS.
+eapply ex_intro.
 apply cong_resp_tsat with (parP zeroP
   (nuPl (fun c : chan session true => parP (S c) (C c)))).
  (* subgoal 1*)
@@ -48,6 +45,22 @@ apply cong_resp_tsat with (parP zeroP
    inversion H9.
 
    CheckStable; [ simpl | simpl | CheckInc]...
+
+   (* callback *)
+   specialize (H0 (Call req res)).
+   inversion H0.
+   apply cong_resp_tsat with (parP (ch ??* P) (parP (res ?? P0) (OutAtom res x))).
+
+    apply red_com_deter_inout.
+     intro.
+     apply INPUTS_sat_inv  in H2.
+     decompose [ex and] H2.
+     apply cong_zero_zeros_only in H3.
+   assert (zeros_only zeroP); [apply one_zero|].
+   apply H3 in H4.
+   inversion H4.
+   inversion H8.
+
 
 
    CheckStable.
